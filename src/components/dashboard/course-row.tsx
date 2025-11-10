@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Course } from '@/types';
 import { SplitFlapDisplay } from './split-flap-char';
 import { Button } from '@/components/ui/button';
 import { CourseForm } from './course-form';
 import { deleteCourse } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
-import { stylizeStatusMessage } from '@/ai/flows/stylize-status-messages';
 
 import {
   AlertDialog,
@@ -25,26 +24,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 export function CourseRow({ course }: { course: Course }) {
   const { toast } = useToast();
-  const [stylizedStatus, setStylizedStatus] = useState(course.movimiento.toUpperCase());
   const [isDeleting, setIsDeleting] = useState(false);
-
-  useEffect(() => {
-    async function getStylizedMessage() {
-      try {
-        const result = await stylizeStatusMessage({ statusMessage: course.movimiento });
-        // Use red for 'Cancelado' and 'Demorado', otherwise use primary color (green)
-        const color = (result.stylizedMessage.toLowerCase().includes('cancelado') || result.stylizedMessage.toLowerCase().includes('demorado'))
-          ? '#ef4444' // red-500
-          : 'hsl(var(--primary))';
-        const styledMessage = `<span style='color:${color};'>${result.stylizedMessage}</span>`
-        setStylizedStatus(styledMessage);
-      } catch (error) {
-        console.error("Failed to stylize status message:", error);
-        setStylizedStatus(course.movimiento.toUpperCase());
-      }
-    }
-    getStylizedMessage();
-  }, [course.movimiento]);
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -65,14 +45,10 @@ export function CourseRow({ course }: { course: Course }) {
   };
 
   return (
-    <div className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium tracking-wider">
+    <div className="grid grid-cols-[1fr_1fr_1fr_auto] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium tracking-wider">
       <SplitFlapDisplay text={course.className.toUpperCase()} className="text-foreground" />
       <SplitFlapDisplay text={course.time} className="text-foreground/80"/>
       <SplitFlapDisplay text={course.lugar.substring(0, 3).toUpperCase()} className="text-foreground/80"/>
-      <div
-        className="font-bold text-base"
-        dangerouslySetInnerHTML={{ __html: stylizedStatus.replace(/\\/g, '') }}
-      />
       <div className="flex justify-end items-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

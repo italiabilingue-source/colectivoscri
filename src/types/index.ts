@@ -7,7 +7,5 @@ export type Course = {
   className: string;
   time: string; // HH:mm format
   lugar: string;
-  notes?: string;
-  movimiento: string;
   createdAt: Timestamp;
 };

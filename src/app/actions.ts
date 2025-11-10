@@ -19,8 +19,6 @@ const CourseSchema = z.object({
   className: z.string().min(1, 'La clase es requerida'),
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Formato de hora inválido. Use HH:mm'),
   lugar: z.string().min(1, 'El lugar es requerido'),
-  movimiento: z.string().min(1, 'El movimiento es requerido'),
-  notes: z.string().optional(),
 });
 
 export async function addOrUpdateCourse(data: Omit<Course, 'id' | 'createdAt' | 'userId'> & { id?: string }) {

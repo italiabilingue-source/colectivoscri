@@ -7,7 +7,6 @@ import { z } from 'zod';
 import { addOrUpdateCourse } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { Course } from '@/types';
-import { generateItineraryNotes } from '@/ai/flows/generate-itinerary-notes';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -35,8 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Plus, Edit, Loader2, Sparkles } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
 
 const formSchema = z.object({
   id: z.string().optional(),
@@ -44,8 +42,6 @@ const formSchema = z.object({
   className: z.string().min(1, 'La clase es requerida').max(2, 'Máximo 2 caracteres'),
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Formato de hora inválido. Use HH:mm'),
   lugar: z.string().min(1, 'El lugar es requerido'),
-  movimiento: z.string().min(1, 'El movimiento es requerido'),
-  notes: z.string().optional(),
 });
 
 type CourseFormValues = z.infer<typeof formSchema>;
@@ -58,7 +54,6 @@ type CourseFormProps = {
 export function CourseForm({ course, children }: CourseFormProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isGeneratingNotes, setIsGeneratingNotes] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<CourseFormValues>({
@@ -69,8 +64,6 @@ export function CourseForm({ course, children }: CourseFormProps) {
       className: course?.className ?? '',
       time: course?.time ?? '',
       lugar: course?.lugar ?? 'Entrada',
-      movimiento: course?.movimiento ?? 'Programado',
-      notes: course?.notes ?? '',
     },
   });
 
@@ -98,38 +91,6 @@ export function CourseForm({ course, children }: CourseFormProps) {
       setIsSubmitting(false);
     }
   }
-
-  const handleGenerateNotes = async () => {
-    setIsGeneratingNotes(true);
-    try {
-        const { level, className, time, lugar, movimiento } = form.getValues();
-
-        if (!level || !className || !time || !lugar) {
-            toast({
-                title: 'No se pueden generar notas',
-                description: 'Por favor, complete Nivel, Clase, Hora y Lugar primero.',
-                variant: 'destructive',
-            });
-            return;
-        }
-
-        const prompt = `Un curso de ${level}, clase ${className} a las ${time} en ${lugar}. Movimiento: ${movimiento}`;
-        const result = await generateItineraryNotes({ prompt });
-        form.setValue('notes', result.notes, { shouldValidate: true });
-        toast({
-            title: 'Notas Generadas',
-            description: 'Se han añadido notas generadas por IA.',
-        });
-    } catch (error) {
-        toast({
-            title: 'Error de IA',
-            description: 'No se pudieron generar las notas.',
-            variant: 'destructive',
-        });
-    } finally {
-        setIsGeneratingNotes(false);
-    }
-  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -215,55 +176,6 @@ export function CourseForm({ course, children }: CourseFormProps) {
                 )}
                 />
             </div>
-             <FormField
-                control={form.control}
-                name="movimiento"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Movimiento</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Seleccione el movimiento" /></SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                            <SelectItem value="A Tiempo">A Tiempo</SelectItem>
-                            <SelectItem value="En Horario">En Horario</SelectItem>
-                            <SelectItem value="Adelantado">Adelantado</SelectItem>
-                            <SelectItem value="Demorado">Demorado</SelectItem>
-                            <SelectItem value="Cancelado">Cancelado</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-             <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                    <FormItem>
-                      <div className="flex items-center justify-between">
-                        <FormLabel>Notas (Opcional)</FormLabel>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={handleGenerateNotes}
-                            disabled={isGeneratingNotes || isSubmitting}
-                        >
-                            {isGeneratingNotes ? (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                                <Sparkles className="mr-2 h-4 w-4" />
-                            )}
-                            Generar con IA
-                        </Button>
-                      </div>
-                      <FormControl><Textarea placeholder="Añada notas relevantes..." {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                )}
-                />
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

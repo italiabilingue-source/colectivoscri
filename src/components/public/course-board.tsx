@@ -1,5 +1,5 @@
 import type { Course } from '@/types';
-import { CourseRow } from './course-row';
+import { SplitFlapDisplay } from '../dashboard/split-flap-char';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type CourseBoardProps = {
@@ -18,15 +18,20 @@ export function CourseBoard({ title, icon, courses }: CourseBoardProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-[1.5fr_1fr_1fr_1.5fr] items-center gap-4 xl:gap-6 border-b-2 border-primary/50 pb-2 px-2 text-sm md:text-base text-muted-foreground font-bold tracking-widest">
+        <div className="grid grid-cols-2 md:grid-cols-3 items-center gap-4 xl:gap-6 border-b-2 border-primary/50 pb-2 px-2 text-sm md:text-base text-muted-foreground font-bold tracking-widest">
             <span>CLASE</span>
             <span>HORA</span>
-            <span>DÍA</span>
-            <span>ESTADO</span>
+            <span className="hidden md:block">LUGAR</span>
         </div>
         <div className="mt-2 space-y-2">
           {courses.length > 0 ? (
-            courses.map(course => <CourseRow key={course.id} course={course} />)
+            courses.map(course => (
+                 <div key={course.id} className="grid grid-cols-2 md:grid-cols-3 items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium tracking-wider">
+                    <SplitFlapDisplay text={course.className.toUpperCase()} className="text-foreground" />
+                    <SplitFlapDisplay text={course.time} className="text-foreground/80"/>
+                    <SplitFlapDisplay text={course.lugar.substring(0, 3).toUpperCase()} className="text-foreground/80 hidden md:flex"/>
+                </div>
+            ))
           ) : (
             <div className="text-center py-12 text-muted-foreground">
               No hay cursos programados.
