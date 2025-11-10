@@ -18,7 +18,8 @@ const CourseSchema = z.object({
   level: z.enum(['Jardín', 'Primaria', 'Secundaria']),
   courseName: z.string().min(1, 'El curso/grado es requerido'),
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Formato de hora inválido. Use HH:mm'),
-  lugar: z.enum(['Llegada', 'Salida']),
+  lugar: z.enum(['Chacra', 'Escuela']),
+  movimiento: z.enum(['Llegada', 'Salida']),
 });
 
 export async function addOrUpdateCourse(data: Omit<Course, 'id' | 'createdAt'> & { id?: string }) {

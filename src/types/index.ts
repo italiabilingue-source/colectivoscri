@@ -5,6 +5,7 @@ export type Course = {
   level: 'Jardín' | 'Primaria' | 'Secundaria';
   courseName: string;
   time: string; // HH:mm format
-  lugar: 'Llegada' | 'Salida';
+  lugar: 'Chacra' | 'Escuela';
+  movimiento: 'Llegada' | 'Salida';
   createdAt: Timestamp;
 };

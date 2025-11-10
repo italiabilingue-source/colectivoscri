@@ -41,7 +41,8 @@ const formSchema = z.object({
   level: z.enum(['Jardín', 'Primaria', 'Secundaria']),
   courseName: z.string().min(1, 'El curso/grado es requerido'),
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Formato de hora inválido. Use HH:mm'),
-  lugar: z.enum(['Llegada', 'Salida']),
+  lugar: z.enum(['Chacra', 'Escuela']),
+  movimiento: z.enum(['Llegada', 'Salida']),
 });
 
 type CourseFormValues = z.infer<typeof formSchema>;
@@ -71,7 +72,8 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
       level: course?.level ?? 'Primaria',
       courseName: course?.courseName ?? '',
       time: course?.time ?? '',
-      lugar: course?.lugar ?? 'Llegada',
+      lugar: course?.lugar ?? 'Escuela',
+      movimiento: course?.movimiento ?? 'Llegada',
     },
   });
 
@@ -165,14 +167,34 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
                 )}
                 />
                 <FormField
+                  control={form.control}
+                  name="lugar"
+                  render={({ field }) => (
+                      <FormItem>
+                      <FormLabel>Lugar</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                          <SelectTrigger><SelectValue placeholder="Seleccione el lugar" /></SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                              <SelectItem value="Chacra">Chacra</SelectItem>
+                              <SelectItem value="Escuela">Escuela</SelectItem>
+                          </SelectContent>
+                      </Select>
+                      <FormMessage />
+                      </FormItem>
+                  )}
+                />
+            </div>
+             <FormField
                 control={form.control}
-                name="lugar"
+                name="movimiento"
                 render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Lugar</FormLabel>
+                    <FormLabel>Movimiento</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Seleccione el lugar" /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder="Seleccione el movimiento" /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
                             <SelectItem value="Llegada">Llegada</SelectItem>
@@ -183,7 +205,6 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
                     </FormItem>
                 )}
                 />
-            </div>
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

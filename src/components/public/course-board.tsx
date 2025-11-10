@@ -1,4 +1,6 @@
 import type { Course } from '@/types';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { SplitFlapDisplay } from '@/components/dashboard/split-flap-char';
 
 type CourseBoardProps = {
   title: string;
@@ -8,26 +10,30 @@ type CourseBoardProps = {
 
 export function CourseBoard({ title, icon, courses }: CourseBoardProps) {
   return (
-    <div className="border border-border/30 flex-1 min-w-0 p-4 rounded-lg shadow-sm bg-white">
-      <h2 className="flex items-center gap-3 text-2xl md:text-3xl text-primary font-bold tracking-widest mb-4">
-        {icon}
-        {title}
-      </h2>
-      <div>
-        <div className="grid grid-cols-4 items-center gap-4 border-b-2 border-primary/50 pb-2 px-2 text-sm text-muted-foreground font-bold tracking-widest">
-          <span>CURSO/GRADO</span>
-          <span>HORA</span>
-          <span>LUGAR</span>
-          <span>MOVIMIENTO</span>
+    <Card className="bg-card/50 border-border/60 flex-1 min-w-0">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-3 text-2xl md:text-3xl text-primary font-bold tracking-widest">
+          {icon}
+          {title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-[1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b-2 border-primary/50 pb-2 px-2 text-sm md:text-base text-muted-foreground font-bold tracking-widest">
+            <span>CURSO/GRADO</span>
+            <span>HORA</span>
+            <span>LUGAR</span>
+            <span className="text-right">MOVIMIENTO</span>
         </div>
-        <div className="mt-4 space-y-3 px-2">
+        <div className="mt-2 space-y-2">
           {courses.length > 0 ? (
             courses.map(course => (
-              <div key={course.id} className="grid grid-cols-4 items-center gap-4 text-base md:text-lg">
-                <span>{course.courseName}</span>
-                <span>{course.time}</span>
-                <span>{course.lugar}</span>
-                <span>{course.lugar === 'Llegada' ? 'LLEGANDO' : 'SALIENDO'}</span>
+              <div key={course.id} className="grid grid-cols-[1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium tracking-wider">
+                <SplitFlapDisplay text={course.courseName.toUpperCase()} className="text-foreground" />
+                <SplitFlapDisplay text={course.time} className="text-foreground/80"/>
+                <SplitFlapDisplay text={course.lugar.toUpperCase()} className="text-foreground/80"/>
+                <div className="flex justify-end items-center">
+                  <SplitFlapDisplay text={course.movimiento.toUpperCase()} className="text-foreground/80" />
+                </div>
               </div>
             ))
           ) : (
@@ -36,7 +42,7 @@ export function CourseBoard({ title, icon, courses }: CourseBoardProps) {
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

@@ -57,9 +57,9 @@ export function CourseRow({ course }: { course: Course }) {
           <div className="grid grid-cols-[1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium tracking-wider cursor-pointer hover:bg-muted/50 rounded-md">
             <SplitFlapDisplay text={course.courseName.toUpperCase()} className="text-foreground" />
             <SplitFlapDisplay text={course.time} className="text-foreground/80"/>
-            <SplitFlapDisplay text={course.lugar.substring(0, 3).toUpperCase()} className="text-foreground/80"/>
+            <SplitFlapDisplay text={course.lugar.toUpperCase()} className="text-foreground/80"/>
             <div className="flex justify-end items-center">
-              <SplitFlapDisplay text={course.lugar.toUpperCase()} className="text-foreground/80" />
+              <SplitFlapDisplay text={course.movimiento.toUpperCase()} className="text-foreground/80" />
             </div>
           </div>
         </ContextMenuTrigger>
