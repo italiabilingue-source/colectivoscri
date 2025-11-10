@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Course } from '@/types';
-import { SplitFlapDisplay } from './split-flap-char';
 import { CourseForm } from './course-form';
 import { deleteCourse } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
@@ -23,6 +22,7 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import { SplitFlapDisplay } from './split-flap-char';
 
 export function CourseRow({ course }: { course: Course }) {
   const { toast } = useToast();
@@ -49,15 +49,21 @@ export function CourseRow({ course }: { course: Course }) {
         setIsDeleting(false);
     }
   };
+  
+  const [grade, section] = (course.courseName || '').split(' ');
 
   return (
     <>
       <ContextMenu>
         <ContextMenuTrigger asChild>
           <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium tracking-wider cursor-pointer hover:bg-muted/50 rounded-md">
-            <SplitFlapDisplay text={course.courseName.toUpperCase()} className="text-foreground" />
+            
+            <div className="flex flex-col leading-none">
+              <SplitFlapDisplay text={(grade || '').toUpperCase()} className="text-foreground" />
+              {section && <SplitFlapDisplay text={section.toUpperCase()} className="text-foreground" />}
+            </div>
+
             <SplitFlapDisplay text={course.time} className="text-foreground/80"/>
-            <SplitFlapDisplay text={(course.day || '').toUpperCase()} className="text-foreground/80"/>
             <SplitFlapDisplay text={(course.lugar || '').toUpperCase()} className="text-foreground/80"/>
             <div className="flex justify-end items-center">
               <SplitFlapDisplay text={(course.movimiento || '').toUpperCase()} className="text-foreground/80" />
