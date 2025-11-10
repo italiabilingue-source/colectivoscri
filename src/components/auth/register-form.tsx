@@ -17,7 +17,7 @@ function SubmitButton() {
   return (
     <Button type="submit" className="w-full" disabled={pending}>
       {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-      Create Account
+      Crear Cuenta
     </Button>
   );
 }
@@ -32,45 +32,49 @@ export function RegisterForm() {
   useEffect(() => {
     if (state?.status === 'error') {
       toast({
-        title: 'Registration Error',
+        title: 'Error de Registro',
         description: state.message,
         variant: 'destructive',
       });
     }
     if (state?.status === 'success') {
       toast({
-        title: 'Success',
-        description: 'Account created successfully! Please sign in.',
+        title: 'Éxito',
+        description: '¡Cuenta creada! Por favor, inicia sesión.',
       });
       router.push('/login');
     }
   }, [state, router, toast]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     if (password !== confirmPassword) {
-      e.preventDefault();
       toast({
-        title: 'Password Mismatch',
-        description: 'The passwords do not match.',
+        title: 'Las contraseñas no coinciden',
+        description: 'Por favor, asegúrese de que ambas contraseñas sean iguales.',
         variant: 'destructive',
       });
+      return;
     }
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    formAction(formData);
   };
 
   return (
-    <form action={formAction} onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
           id="email"
           name="email"
           type="email"
-          placeholder="your@email.com"
+          placeholder="tu@email.com"
           required
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">Contraseña</Label>
         <Input
           id="password"
           name="password"
@@ -81,7 +85,7 @@ export function RegisterForm() {
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="confirm-password">Confirm Password</Label>
+        <Label htmlFor="confirm-password">Confirmar Contraseña</Label>
         <Input
           id="confirm-password"
           name="confirm-password"
@@ -93,9 +97,9 @@ export function RegisterForm() {
       </div>
       <SubmitButton />
       <p className="text-center text-sm text-muted-foreground">
-        Already have an account?{' '}
+        ¿Ya tienes una cuenta?{' '}
         <Link href="/login" className="font-medium text-primary hover:underline">
-          Sign in
+          Inicia Sesión
         </Link>
       </p>
     </form>

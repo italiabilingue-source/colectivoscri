@@ -80,6 +80,7 @@ export async function addOrUpdateCourse(data: Omit<Course, 'id' | 'createdAt' | 
             });
         }
         revalidatePath('/');
+        revalidatePath('/dashboard');
         return { success: true };
     } catch (error) {
         console.error("Error al agregar/actualizar el documento: ", error);
@@ -95,6 +96,7 @@ export async function deleteCourse(id: string) {
     try {
         await deleteDoc(doc(db, 'courses', id));
         revalidatePath('/');
+        revalidatePath('/dashboard');
         return { success: true };
     } catch (error) {
         console.error("Error al eliminar el documento: ", error);

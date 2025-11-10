@@ -17,7 +17,7 @@ function SubmitButton() {
   return (
     <Button type="submit" className="w-full" disabled={pending}>
       {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-      Sign In
+      Iniciar Sesión
     </Button>
   );
 }
@@ -30,17 +30,17 @@ export function LoginForm() {
   useEffect(() => {
     if (state?.status === 'error') {
       toast({
-        title: 'Authentication Error',
+        title: 'Error de Autenticación',
         description: state.message,
         variant: 'destructive',
       });
     }
     if (state?.status === 'success') {
       toast({
-        title: 'Success',
-        description: 'Signed in successfully.',
+        title: 'Éxito',
+        description: 'Has iniciado sesión correctamente.',
       });
-      router.push('/');
+      router.push('/dashboard');
     }
   }, [state, router, toast]);
 
@@ -52,19 +52,19 @@ export function LoginForm() {
           id="email"
           name="email"
           type="email"
-          placeholder="your@email.com"
+          placeholder="tu@email.com"
           required
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">Contraseña</Label>
         <Input id="password" name="password" type="password" required />
       </div>
       <SubmitButton />
       <p className="text-center text-sm text-muted-foreground">
-        Don&apos;t have an account?{' '}
+        ¿No tienes una cuenta?{' '}
         <Link href="/register" className="font-medium text-primary hover:underline">
-          Sign up
+          Regístrate
         </Link>
       </p>
     </form>
