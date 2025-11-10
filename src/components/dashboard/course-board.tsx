@@ -19,7 +19,7 @@ export function CourseBoard({ title, icon, courses }: CourseBoardProps) {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-[1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b-2 border-primary/50 pb-2 px-2 text-sm md:text-base text-muted-foreground font-bold tracking-widest">
-            <span>CLASE</span>
+            <span>CURSO/GRADO</span>
             <span>HORA</span>
             <span>LUGAR</span>
             <span className="text-right">MOVIMIENTO</span>
@@ -29,7 +29,7 @@ export function CourseBoard({ title, icon, courses }: CourseBoardProps) {
             courses.map(course => <CourseRow key={course.id} course={course} />)
           ) : (
             <div className="text-center py-12 text-muted-foreground">
-              No hay cursos programados.
+              No hay horarios programados.
             </div>
           )}
         </div>

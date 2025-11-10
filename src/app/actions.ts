@@ -16,7 +16,7 @@ import type { Course } from '@/types';
 const CourseSchema = z.object({
   id: z.string().optional(),
   level: z.enum(['Jardín', 'Primaria', 'Secundaria']),
-  className: z.string().min(1, 'La clase es requerida'),
+  courseName: z.string().min(1, 'El curso/grado es requerido'),
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Formato de hora inválido. Use HH:mm'),
   lugar: z.enum(['Llegada', 'Salida']),
 });

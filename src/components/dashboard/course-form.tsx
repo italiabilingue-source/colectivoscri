@@ -39,7 +39,7 @@ import { Plus, Loader2 } from 'lucide-react';
 const formSchema = z.object({
   id: z.string().optional(),
   level: z.enum(['Jardín', 'Primaria', 'Secundaria']),
-  className: z.string().min(1, 'La clase es requerida').max(2, 'Máximo 2 caracteres'),
+  courseName: z.string().min(1, 'El curso/grado es requerido'),
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Formato de hora inválido. Use HH:mm'),
   lugar: z.enum(['Llegada', 'Salida']),
 });
@@ -69,7 +69,7 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
     defaultValues: {
       id: course?.id,
       level: course?.level ?? 'Primaria',
-      className: course?.className ?? '',
+      courseName: course?.courseName ?? '',
       time: course?.time ?? '',
       lugar: course?.lugar ?? 'Llegada',
     },
@@ -82,7 +82,7 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
       if (result?.success) {
         toast({
           title: 'Éxito',
-          description: `Curso ${course ? 'actualizado' : 'creado'} correctamente.`,
+          description: `Horario ${course ? 'actualizado' : 'creado'} correctamente.`,
         });
         handleOpenChange(false);
         form.reset();
@@ -106,15 +106,15 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
         {children ?? (
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Nuevo Curso
+            Nuevo Horario
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle>{course ? 'Editar Curso' : 'Crear Nuevo Curso'}</DialogTitle>
+          <DialogTitle>{course ? 'Editar Horario' : 'Crear Nuevo Horario'}</DialogTitle>
           <DialogDescription>
-            Rellene los detalles del curso. Haga clic en guardar cuando haya terminado.
+            Rellene los detalles del horario. Haga clic en guardar cuando haya terminado.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -131,7 +131,7 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
                           <SelectTrigger><SelectValue placeholder="Seleccione el nivel" /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <Jardín>Jardín</Jardín>
+                          <SelectItem value="Jardín">Jardín</SelectItem>
                           <SelectItem value="Primaria">Primaria</SelectItem>
                           <SelectItem value="Secundaria">Secundaria</SelectItem>
                         </SelectContent>
@@ -142,11 +142,11 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
                 />
                  <FormField
                     control={form.control}
-                    name="className"
+                    name="courseName"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Clase</FormLabel>
-                        <FormControl><Input placeholder="Ej: A, B..." {...field} /></FormControl>
+                        <FormLabel>Curso/Grado</FormLabel>
+                        <FormControl><Input placeholder="Ej: 1A, Sala de 5..." {...field} /></FormControl>
                         <FormMessage />
                         </FormItem>
                     )}
@@ -187,7 +187,7 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Guardar Curso
+                Guardar Horario
               </Button>
             </DialogFooter>
           </form>
@@ -195,3 +195,4 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
       </DialogContent>
     </Dialog>
   );
+}

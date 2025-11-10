@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { Course } from '@/types';
 import { SplitFlapDisplay } from './split-flap-char';
-import { Button } from '@/components/ui/button';
 import { CourseForm } from './course-form';
 import { deleteCourse } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
@@ -36,14 +35,14 @@ export function CourseRow({ course }: { course: Course }) {
     try {
       await deleteCourse(course.id);
       toast({
-        title: "Curso Eliminado",
-        description: "El curso ha sido eliminado.",
+        title: "Horario Eliminado",
+        description: "El horario ha sido eliminado.",
       });
       setIsAlertOpen(false);
     } catch (error) {
       toast({
         title: "Error",
-        description: "No se pudo eliminar el curso.",
+        description: "No se pudo eliminar el horario.",
         variant: "destructive",
       });
     } finally {
@@ -56,7 +55,7 @@ export function CourseRow({ course }: { course: Course }) {
       <ContextMenu>
         <ContextMenuTrigger asChild>
           <div className="grid grid-cols-[1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium tracking-wider cursor-pointer hover:bg-muted/50 rounded-md">
-            <SplitFlapDisplay text={course.className.toUpperCase()} className="text-foreground" />
+            <SplitFlapDisplay text={course.courseName.toUpperCase()} className="text-foreground" />
             <SplitFlapDisplay text={course.time} className="text-foreground/80"/>
             <SplitFlapDisplay text={course.lugar.substring(0, 3).toUpperCase()} className="text-foreground/80"/>
             <div className="flex justify-end items-center">
@@ -85,7 +84,7 @@ export function CourseRow({ course }: { course: Course }) {
           <AlertDialogHeader>
             <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción no se puede deshacer. Esto eliminará permanentemente el curso.
+              Esta acción no se puede deshacer. Esto eliminará permanentemente el horario.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
