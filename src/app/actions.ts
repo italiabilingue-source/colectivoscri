@@ -47,17 +47,15 @@ export async function signInWithEmail(prevState: any, formData: FormData) {
 
   try {
     await signInWithEmailAndPassword(auth, email, password);
-    // This will be caught by the framework and trigger a redirect.
+    return { message: 'Success', status: 'success' };
   } catch (e: any) {
     return { message: e.message, status: 'error' };
   }
-
-  redirect('/dashboard');
 }
 
 export async function signOutAction() {
   await signOut(auth);
-  revalidatePath('/');
+  redirect('/');
 }
 
 export async function addOrUpdateCourse(data: Omit<Course, 'id' | 'createdAt' | 'userId'> & { id?: string }) {

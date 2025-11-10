@@ -3,6 +3,7 @@
 import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import { signInWithEmail } from '@/app/actions';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,7 @@ function SubmitButton() {
 
 export function LoginForm() {
   const [state, formAction] = useActionState(signInWithEmail, null);
+  const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -38,8 +40,9 @@ export function LoginForm() {
         title: 'Éxito',
         description: 'Has iniciado sesión correctamente.',
       });
+      router.push('/dashboard');
     }
-  }, [state, toast]);
+  }, [state, router, toast]);
 
   return (
     <form action={formAction} className="space-y-4">
