@@ -1,9 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Flag, Shield } from 'lucide-react';
+import { Flag } from 'lucide-react';
 
 export function PublicHeader() {
   const [currentDay, setCurrentDay] = useState('');
@@ -23,12 +21,6 @@ export function PublicHeader() {
           Horario de Colectivos del día {currentDay}
         </h1>
       </div>
-      <Button asChild>
-        <Link href="/dashboard">
-          <Shield className="mr-2 h-4 w-4" />
-          Panel de Admin
-        </Link>
-      </Button>
     </header>
   );
 }
