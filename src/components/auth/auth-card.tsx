@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookMarked } from "lucide-react";
+import { Flag } from "lucide-react";
 
 type AuthCardProps = {
   title: string;
@@ -13,7 +13,7 @@ export function AuthCard({ title, description, children }: AuthCardProps) {
       <Card className="w-full max-w-md border-primary/20 shadow-lg shadow-primary/10">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
-            <BookMarked className="w-8 h-8 text-primary" />
+            <Flag className="w-8 h-8 text-primary" />
           </div>
           <CardTitle className="text-3xl font-bold text-foreground">{title}</CardTitle>
           <CardDescription className="text-muted-foreground pt-1">{description}</CardDescription>

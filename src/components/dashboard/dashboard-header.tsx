@@ -2,7 +2,7 @@
 
 import { signOutAction } from '@/app/actions';
 import { Button } from '@/components/ui/button';
-import { LogOut, BookMarked } from 'lucide-react';
+import { LogOut, Flag } from 'lucide-react';
 import { CourseForm } from './course-form';
 
 export function DashboardHeader() {
@@ -13,7 +13,7 @@ export function DashboardHeader() {
   return (
     <header className="flex items-center justify-between p-4 border-b border-border/50">
       <div className="flex items-center gap-3">
-        <BookMarked className="w-8 h-8 text-primary" />
+        <Flag className="w-8 h-8 text-primary" />
         <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
           Gestor de Cursos
         </h1>
