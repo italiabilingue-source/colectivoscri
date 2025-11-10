@@ -19,24 +19,17 @@ export function CourseBoard({ title, icon, courses }: CourseBoardProps) {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-[1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b-2 border-primary/50 pb-2 px-2 text-sm md:text-base text-muted-foreground font-bold tracking-widest">
-            <span>CURSO/GRADO</span>
-            <span>HORA</span>
-            <span>LUGAR</span>
-            <span className="text-right">MOVIMIENTO</span>
+          <span>CURSO/GRADO</span>
+          <span>HORA</span>
+          <span>LUGAR</span>
+          <span className="text-left">MOVIMIENTO</span>
         </div>
         <div className="mt-2 space-y-2">
           {courses.length > 0 ? (
-            courses.map(course => (
-              <div key={course.id} className="grid grid-cols-[1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium tracking-wider">
-                <span className="text-foreground">{course.courseName.toUpperCase()}</span>
-                <span className="text-foreground/80">{course.time}</span>
-                <span className="text-foreground/80">{(course.lugar || '').toUpperCase()}</span>
-                <span className="text-right text-foreground/80">{(course.movimiento || '').toUpperCase()}</span>
-              </div>
-            ))
+            courses.map(course => <CourseRow key={course.id} course={course} />)
           ) : (
             <div className="text-center py-12 text-muted-foreground">
-              No hay horarios programados.
+              No hay horarios para la selección actual.
             </div>
           )}
         </div>
