@@ -41,6 +41,7 @@ const formSchema = z.object({
   level: z.enum(['Jardín', 'Primaria', 'Secundaria']),
   courseName: z.string().min(1, 'El curso/grado es requerido'),
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Formato de hora inválido. Use HH:mm'),
+  day: z.enum(['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']),
   lugar: z.enum(['Chacra', 'Escuela']),
   movimiento: z.enum(['Llegada', 'Salida']),
 });
@@ -72,6 +73,7 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
       level: course?.level ?? 'Primaria',
       courseName: course?.courseName ?? '',
       time: course?.time ?? '',
+      day: course?.day ?? 'Lunes',
       lugar: course?.lugar ?? 'Escuela',
       movimiento: course?.movimiento ?? 'Llegada',
     },
@@ -166,6 +168,30 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
                     </FormItem>
                 )}
                 />
+                 <FormField
+                  control={form.control}
+                  name="day"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Día</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger><SelectValue placeholder="Seleccione el día" /></SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Lunes">Lunes</SelectItem>
+                          <SelectItem value="Martes">Martes</SelectItem>
+                          <SelectItem value="Miércoles">Miércoles</SelectItem>
+                          <SelectItem value="Jueves">Jueves</SelectItem>
+                          <SelectItem value="Viernes">Viernes</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="lugar"
@@ -185,8 +211,7 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
                       </FormItem>
                   )}
                 />
-            </div>
-             <FormField
+                <FormField
                 control={form.control}
                 name="movimiento"
                 render={({ field }) => (
@@ -205,6 +230,7 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
                     </FormItem>
                 )}
                 />
+            </div>
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

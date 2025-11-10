@@ -17,9 +17,10 @@ export default function DashboardClient({ user }: { user: User | null }) {
 
   useEffect(() => {
     setLoading(true);
-    // Query para obtener todos los cursos, ya que no hay usuario.
+    // Query para obtener todos los cursos, ordenados por día y luego por hora.
     const q = query(
       collection(db, 'courses'),
+      orderBy('day', 'asc'),
       orderBy('time', 'asc')
     );
 

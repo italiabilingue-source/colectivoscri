@@ -1,3 +1,4 @@
+'use client';
 import type { Course } from '@/types';
 import { CourseRow } from './course-row';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,9 +19,10 @@ export function CourseBoard({ title, icon, courses }: CourseBoardProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-[1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b-2 border-primary/50 pb-2 px-2 text-sm md:text-base text-muted-foreground font-bold tracking-widest">
+        <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b-2 border-primary/50 pb-2 px-2 text-sm md:text-base text-muted-foreground font-bold tracking-widest">
             <span>CURSO/GRADO</span>
             <span>HORA</span>
+            <span>DÍA</span>
             <span>LUGAR</span>
             <span className="text-right">MOVIMIENTO</span>
         </div>
