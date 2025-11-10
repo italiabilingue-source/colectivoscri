@@ -4,16 +4,15 @@ import { useState, useEffect } from 'react';
 import { collection, onSnapshot, query, where, orderBy } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
 import { db } from '@/lib/firebase';
-import type { Itinerary } from '@/types';
-import { ItineraryBoard } from './itinerary-board';
+import type { Course } from '@/types';
+import { CourseBoard } from './course-board';
 import { DashboardHeader } from './dashboard-header';
-import { SchoolIcon } from '../icons/school-icon';
-import { FarmIcon } from '../icons/farm-icon';
+import { BookCopy, School, GraduationCap } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Loader2 } from 'lucide-react';
 
 export default function DashboardClient({ user }: { user: User }) {
-  const [itineraries, setItineraries] = useState<Itinerary[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,28 +20,29 @@ export default function DashboardClient({ user }: { user: User }) {
 
     setLoading(true);
     const q = query(
-      collection(db, 'itineraries'),
+      collection(db, 'courses'),
       where('userId', '==', user.uid),
       orderBy('time', 'asc')
     );
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const itineriesData: Itinerary[] = [];
+      const coursesData: Course[] = [];
       querySnapshot.forEach((doc) => {
-        itineriesData.push({ id: doc.id, ...doc.data() } as Itinerary);
+        coursesData.push({ id: doc.id, ...doc.data() } as Course);
       });
-      setItineraries(itineriesData);
+      setCourses(coursesData);
       setLoading(false);
     }, (error) => {
-        console.error("Error fetching itineraries: ", error);
+        console.error("Error fetching courses: ", error);
         setLoading(false);
     });
 
     return () => unsubscribe();
   }, [user]);
 
-  const schoolBound = itineraries.filter(it => it.destination === 'School');
-  const farmBound = itineraries.filter(it => it.destination === 'Farm');
+  const jardinCourses = courses.filter(it => it.level === 'Jardín');
+  const primariaCourses = courses.filter(it => it.level === 'Primaria');
+  const secundariaCourses = courses.filter(it => it.level === 'Secundaria');
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -53,18 +53,28 @@ export default function DashboardClient({ user }: { user: User }) {
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
              </div>
         ) : (
-            <div className="flex flex-col lg:flex-row gap-8 h-full">
-            <ItineraryBoard
-                title="TO SCHOOL"
-                icon={<SchoolIcon className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
-                itineraries={schoolBound}
-            />
-            <Separator orientation="vertical" className="hidden lg:block bg-border/50" />
-            <ItineraryBoard
-                title="TO FARM"
-                icon={<FarmIcon className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
-                itineraries={farmBound}
-            />
+            <div className="flex flex-col xl:flex-row gap-8 h-full">
+                <div className="flex flex-col lg:flex-row gap-8 flex-1">
+                    <CourseBoard
+                        title="JARDÍN"
+                        icon={<BookCopy className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
+                        courses={jardinCourses}
+                    />
+                    <Separator orientation="vertical" className="hidden lg:block bg-border/50" />
+                     <CourseBoard
+                        title="PRIMARIA"
+                        icon={<School className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
+                        courses={primariaCourses}
+                    />
+                </div>
+                <Separator orientation="vertical" className="hidden xl:block bg-border/50" />
+                 <div className="flex flex-col lg:flex-row gap-8 flex-1">
+                    <CourseBoard
+                        title="SECUNDARIA"
+                        icon={<GraduationCap className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
+                        courses={secundariaCourses}
+                    />
+                </div>
             </div>
         )}
       </main>

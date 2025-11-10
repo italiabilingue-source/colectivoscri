@@ -16,15 +16,15 @@ import {
 import { auth, db } from '@/lib/firebase';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
-import type { Itinerary } from '@/types';
+import type { Course } from '@/types';
 
-const ItinerarySchema = z.object({
+const CourseSchema = z.object({
   id: z.string().optional(),
-  origin: z.enum(['School', 'Farm']),
-  destination: z.enum(['School', 'Farm']),
-  time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format. Use HH:mm'),
-  day: z.string().min(1, 'Day is required'),
-  status: z.string().min(1, 'Status is required'),
+  level: z.enum(['Jardín', 'Primaria', 'Secundaria']),
+  className: z.string().min(1, 'La clase es requerida'),
+  time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Formato de hora inválido. Use HH:mm'),
+  day: z.string().min(1, 'El día es requerido'),
+  status: z.string().min(1, 'El estado es requerido'),
   notes: z.string().optional(),
 });
 
@@ -57,23 +57,23 @@ export async function signOutAction() {
   revalidatePath('/');
 }
 
-export async function addOrUpdateItinerary(data: Omit<Itinerary, 'id' | 'createdAt' | 'userId'> & { id?: string }) {
+export async function addOrUpdateCourse(data: Omit<Course, 'id' | 'createdAt' | 'userId'> & { id?: string }) {
     const user = auth.currentUser;
-    if (!user) throw new Error('You must be logged in to perform this action.');
+    if (!user) throw new Error('Debes iniciar sesión para realizar esta acción.');
 
-    const validatedFields = ItinerarySchema.safeParse(data);
+    const validatedFields = CourseSchema.safeParse(data);
     if (!validatedFields.success) {
-        throw new Error('Invalid data');
+        throw new Error('Datos inválidos');
     }
 
     try {
         if (data.id) {
-            const docRef = doc(db, 'itineraries', data.id);
+            const docRef = doc(db, 'courses', data.id);
             await updateDoc(docRef, {
                 ...validatedFields.data,
             });
         } else {
-            await addDoc(collection(db, 'itineraries'), {
+            await addDoc(collection(db, 'courses'), {
                 ...validatedFields.data,
                 userId: user.uid,
                 createdAt: serverTimestamp(),
@@ -82,22 +82,22 @@ export async function addOrUpdateItinerary(data: Omit<Itinerary, 'id' | 'created
         revalidatePath('/');
         return { success: true };
     } catch (error) {
-        console.error("Error adding/updating document: ", error);
+        console.error("Error al agregar/actualizar el documento: ", error);
         return { success: false, error: (error as Error).message };
     }
 }
 
 
-export async function deleteItinerary(id: string) {
+export async function deleteCourse(id: string) {
     const user = auth.currentUser;
-    if (!user) throw new Error('You must be logged in to perform this action.');
+    if (!user) throw new Error('Debes iniciar sesión para realizar esta acción.');
     
     try {
-        await deleteDoc(doc(db, 'itineraries', id));
+        await deleteDoc(doc(db, 'courses', id));
         revalidatePath('/');
         return { success: true };
     } catch (error) {
-        console.error("Error deleting document: ", error);
+        console.error("Error al eliminar el documento: ", error);
         return { success: false, error: (error as Error).message };
     }
 }

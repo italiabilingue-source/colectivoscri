@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Itinerary } from '@/types';
+import { Course } from '@/types';
 import { SplitFlapDisplay } from './split-flap-char';
 import { Button } from '@/components/ui/button';
-import { ItineraryForm } from './itinerary-form';
-import { deleteItinerary } from '@/app/actions';
+import { CourseForm } from './course-form';
+import { deleteCourse } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { stylizeStatusMessage } from '@/ai/flows/stylize-status-messages';
 
@@ -20,39 +20,39 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Edit, Trash2, MoreVertical, VenetianMask } from 'lucide-react';
+import { Edit, Trash2, MoreVertical } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
-export function ItineraryRow({ itinerary }: { itinerary: Itinerary }) {
+export function CourseRow({ course }: { course: Course }) {
   const { toast } = useToast();
-  const [stylizedStatus, setStylizedStatus] = useState(itinerary.status.toUpperCase());
+  const [stylizedStatus, setStylizedStatus] = useState(course.status.toUpperCase());
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     async function getStylizedMessage() {
       try {
-        const result = await stylizeStatusMessage({ statusMessage: itinerary.status });
+        const result = await stylizeStatusMessage({ statusMessage: course.status });
         setStylizedStatus(result.stylizedMessage);
       } catch (error) {
         console.error("Failed to stylize status message:", error);
-        setStylizedStatus(itinerary.status.toUpperCase());
+        setStylizedStatus(course.status.toUpperCase());
       }
     }
     getStylizedMessage();
-  }, [itinerary.status]);
+  }, [course.status]);
 
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      await deleteItinerary(itinerary.id);
+      await deleteCourse(course.id);
       toast({
-        title: "Itinerary Deleted",
-        description: "The shuttle itinerary has been removed.",
+        title: "Curso Eliminado",
+        description: "El curso ha sido eliminado.",
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to delete itinerary.",
+        description: "No se pudo eliminar el curso.",
         variant: "destructive",
       });
       setIsDeleting(false);
@@ -60,10 +60,10 @@ export function ItineraryRow({ itinerary }: { itinerary: Itinerary }) {
   };
 
   return (
-    <div className="grid grid-cols-[2fr_1.5fr_1fr_1.5fr_auto] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium tracking-wider">
-      <SplitFlapDisplay text={itinerary.destination.toUpperCase()} className="text-primary" />
-      <SplitFlapDisplay text={itinerary.time} />
-      <SplitFlapDisplay text={itinerary.day.substring(0, 3).toUpperCase()} />
+    <div className="grid grid-cols-[1.5fr_1fr_1fr_1.5fr_auto] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium tracking-wider">
+      <SplitFlapDisplay text={course.className.toUpperCase()} className="text-primary" />
+      <SplitFlapDisplay text={course.time} />
+      <SplitFlapDisplay text={course.day.substring(0, 3).toUpperCase()} />
       <div
         className="text-primary font-bold"
         dangerouslySetInnerHTML={{ __html: stylizedStatus.replace(/\\/g, '') }}
@@ -73,16 +73,16 @@ export function ItineraryRow({ itinerary }: { itinerary: Itinerary }) {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="h-8 w-8">
               <MoreVertical className="h-5 w-5" />
-              <span className="sr-only">Actions</span>
+              <span className="sr-only">Acciones</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <ItineraryForm itinerary={itinerary}>
+            <CourseForm course={course}>
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                 <Edit className="mr-2 h-4 w-4" />
-                <span>Edit</span>
+                <span>Editar</span>
               </DropdownMenuItem>
-            </ItineraryForm>
+            </CourseForm>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <DropdownMenuItem
@@ -90,24 +90,24 @@ export function ItineraryRow({ itinerary }: { itinerary: Itinerary }) {
                   onSelect={(e) => e.preventDefault()}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  <span>Delete</span>
+                  <span>Eliminar</span>
                 </DropdownMenuItem>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete the shuttle itinerary.
+                    Esta acción no se puede deshacer. Esto eliminará permanentemente el curso.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDelete}
                     disabled={isDeleting}
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
-                    {isDeleting ? 'Deleting...' : 'Delete'}
+                    {isDeleting ? 'Eliminando...' : 'Eliminar'}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

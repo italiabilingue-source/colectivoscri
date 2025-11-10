@@ -3,15 +3,15 @@ import { LoginForm } from '@/components/auth/login-form';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Login',
-    description: 'Login to your School Shuttle Tracker account.',
+    title: 'Iniciar Sesión',
+    description: 'Inicia sesión en tu cuenta de Gestor de Cursos.',
 };
 
 export default function LoginPage() {
   return (
     <AuthCard
-      title="Welcome Back"
-      description="Sign in to access the shuttle tracker dashboard."
+      title="Bienvenido de Vuelta"
+      description="Inicia sesión para acceder al panel de cursos."
     >
       <LoginForm />
     </AuthCard>

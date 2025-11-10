@@ -3,15 +3,15 @@ import { RegisterForm } from '@/components/auth/register-form';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Register',
-    description: 'Create a new School Shuttle Tracker account.',
+    title: 'Registro',
+    description: 'Crea una nueva cuenta en Gestor de Cursos.',
 };
 
 export default function RegisterPage() {
   return (
     <AuthCard
-      title="Create an Account"
-      description="Get started with the shuttle tracker by creating an account."
+      title="Crear una Cuenta"
+      description="Comienza a gestionar tus cursos creando una cuenta."
     >
       <RegisterForm />
     </AuthCard>

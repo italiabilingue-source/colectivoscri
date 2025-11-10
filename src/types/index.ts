@@ -1,10 +1,10 @@
 import type { Timestamp } from 'firebase/firestore';
 
-export type Itinerary = {
+export type Course = {
   id: string;
   userId: string;
-  origin: 'School' | 'Farm';
-  destination: 'School' | 'Farm';
+  level: 'Jardín' | 'Primaria' | 'Secundaria';
+  className: string;
   time: string; // HH:mm format
   day: string;
   notes?: string;
