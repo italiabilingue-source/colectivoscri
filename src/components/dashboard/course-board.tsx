@@ -1,15 +1,17 @@
 'use client';
 import type { Course } from '@/types';
 import { CourseRow } from './course-row';
+import { PublicCourseRow } from '@/components/public/public-course-row';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type CourseBoardProps = {
   title: string;
   icon: React.ReactNode;
   courses: Course[];
+  isPublicView?: boolean;
 };
 
-export function CourseBoard({ title, icon, courses }: CourseBoardProps) {
+export function CourseBoard({ title, icon, courses, isPublicView = false }: CourseBoardProps) {
   return (
     <Card className="bg-card/50 border-border/60 flex-1 min-w-0">
       <CardHeader>
@@ -28,10 +30,16 @@ export function CourseBoard({ title, icon, courses }: CourseBoardProps) {
         </div>
         <div className="mt-2 space-y-2">
           {courses.length > 0 ? (
-            courses.map(course => <CourseRow key={course.id} course={course} />)
+            courses.map(course => 
+              isPublicView ? (
+                <PublicCourseRow key={course.id} course={course} />
+              ) : (
+                <CourseRow key={course.id} course={course} />
+              )
+            )
           ) : (
             <div className="text-center py-12 text-muted-foreground">
-              No hay horarios programados.
+              No hay horarios programados para esta selección.
             </div>
           )}
         </div>

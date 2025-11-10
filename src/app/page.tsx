@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Course } from '@/types';
-import { CourseBoard } from '@/components/public/course-board';
+import { CourseBoard } from '@/components/dashboard/course-board';
 import { PublicHeader } from '@/components/public-header';
 import { BookCopy, School, GraduationCap } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
@@ -108,16 +108,19 @@ export default function HomePage() {
               title="JARDÍN"
               icon={<BookCopy className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
               courses={jardinCourses}
+              isPublicView={true}
             />
             <CourseBoard
               title="PRIMARIA"
               icon={<School className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
               courses={primariaCourses}
+              isPublicView={true}
             />
             <CourseBoard
               title="SECUNDARIA"
               icon={<GraduationCap className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
               courses={secundariaCourses}
+              isPublicView={true}
             />
           </div>
         )}
@@ -125,62 +128,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-// Re-creating public course board to avoid conflicts and for separate logic
-function PublicCourseBoard({ title, icon, courses }: { title: string, icon: React.ReactNode, courses: Course[] }) {
-  return (
-    <Card className="bg-card/50 border-border/60 flex-1 min-w-0">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-3 text-2xl md:text-3xl text-primary font-bold tracking-widest">
-          {icon}
-          {title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b-2 border-primary/50 pb-2 px-2 text-sm md:text-base text-muted-foreground font-bold tracking-widest">
-          <span>CURSO/GRADO</span>
-          <span>HORA</span>
-          <span>LUGAR</span>
-          <span>COLECTIVO</span>
-          <span className="text-left">MOVIMIENTO</span>
-        </div>
-        <div className="mt-2 space-y-2">
-          {courses.length > 0 ? (
-            courses.map(course => <PublicCourseRow key={course.id} course={course} />)
-          ) : (
-            <div className="text-center py-12 text-muted-foreground">
-              No hay horarios programados para esta selección.
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function PublicCourseRow({ course }: { course: Course }) {
-  const [grade, section] = (course.courseName || '').split(' ');
-  return (
-      <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium tracking-wider cursor-pointer hover:bg-muted/50 rounded-md">
-        <div className="flex flex-col leading-none">
-          <SplitFlapDisplay text={(grade || '').toUpperCase()} className="text-foreground" />
-          {section && <SplitFlapDisplay text={section.toUpperCase()} className="text-foreground" />}
-        </div>
-        <SplitFlapDisplay text={course.time} className="text-foreground/80"/>
-        <SplitFlapDisplay text={(course.lugar || '').toUpperCase()} className="text-foreground/80"/>
-        <SplitFlapDisplay 
-          text={(course.colectivo || '').toUpperCase()} 
-          className={cn("text-foreground/80", {
-            "text-green-500": course.colectivo === 'CRI'
-          })}
-        />
-        <div className="flex justify-start items-center">
-          <SplitFlapDisplay text={(course.movimiento || '').toUpperCase()} className="text-foreground/80" />
-        </div>
-      </div>
-  );
-}
-
-// Re-create dependencies locally for the page
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { SplitFlapDisplay } from '@/components/dashboard/split-flap-char';
