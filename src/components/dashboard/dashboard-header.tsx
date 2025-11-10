@@ -9,9 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 type DashboardHeaderProps = {
   dayFilter: string;
   lugarFilter: string;
+  colectivoFilter: string;
   movimientoFilter: string;
   onDayChange: (value: string) => void;
   onLugarChange: (value: string) => void;
+  onColectivoChange: (value: string) => void;
   onMovimientoChange: (value: string) => void;
   onClearFilters: () => void;
 };
@@ -20,9 +22,11 @@ type DashboardHeaderProps = {
 export function DashboardHeader({
   dayFilter,
   lugarFilter,
+  colectivoFilter,
   movimientoFilter,
   onDayChange,
   onLugarChange,
+  onColectivoChange,
   onMovimientoChange,
   onClearFilters
 }: DashboardHeaderProps) {
@@ -35,9 +39,9 @@ export function DashboardHeader({
         </h1>
       </div>
       <div className="flex flex-col md:flex-row items-center gap-2 w-full md:w-auto">
-        <div className="flex items-center gap-2 w-full md:w-auto">
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
             <Select value={dayFilter} onValueChange={onDayChange}>
-              <SelectTrigger className="w-full md:w-[120px]">
+              <SelectTrigger className="w-full sm:w-auto flex-1">
                 <SelectValue placeholder="Día" />
               </SelectTrigger>
               <SelectContent>
@@ -51,7 +55,7 @@ export function DashboardHeader({
             </Select>
 
             <Select value={lugarFilter} onValueChange={onLugarChange}>
-              <SelectTrigger className="w-full md:w-[120px]">
+              <SelectTrigger className="w-full sm:w-auto flex-1">
                 <SelectValue placeholder="Lugar" />
               </SelectTrigger>
               <SelectContent>
@@ -60,9 +64,20 @@ export function DashboardHeader({
                 <SelectItem value="Escuela">Escuela</SelectItem>
               </SelectContent>
             </Select>
+            
+            <Select value={colectivoFilter} onValueChange={onColectivoChange}>
+              <SelectTrigger className="w-full sm:w-auto flex-1">
+                <SelectValue placeholder="Colectivo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Todos">Todos</SelectItem>
+                <SelectItem value="Cachi">Cachi</SelectItem>
+                <SelectItem value="CRI">CRI</SelectItem>
+              </SelectContent>
+            </Select>
 
             <Select value={movimientoFilter} onValueChange={onMovimientoChange}>
-              <SelectTrigger className="w-full md:w-[140px]">
+              <SelectTrigger className="w-full sm:w-auto flex-1">
                 <SelectValue placeholder="Movimiento" />
               </SelectTrigger>
               <SelectContent>

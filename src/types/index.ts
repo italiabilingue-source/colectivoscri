@@ -7,6 +7,7 @@ export type Course = {
   time: string; // HH:mm format
   day: 'Lunes' | 'Martes' | 'Miércoles' | 'Jueves' | 'Viernes';
   lugar: 'Chacra' | 'Escuela';
+  colectivo: 'Cachi' | 'CRI';
   movimiento: 'Llegada' | 'Salida';
   createdAt: Timestamp;
 };

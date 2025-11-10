@@ -18,6 +18,7 @@ export default function DashboardClient({ user }: { user: User | null }) {
   // State for filters
   const [dayFilter, setDayFilter] = useState('Todos');
   const [lugarFilter, setLugarFilter] = useState('Todos');
+  const [colectivoFilter, setColectivoFilter] = useState('Todos');
   const [movimientoFilter, setMovimientoFilter] = useState('Todos');
 
 
@@ -48,10 +49,11 @@ export default function DashboardClient({ user }: { user: User | null }) {
     return courses.filter(course => {
         const dayMatch = dayFilter === 'Todos' || course.day === dayFilter;
         const lugarMatch = lugarFilter === 'Todos' || course.lugar === lugarFilter;
+        const colectivoMatch = colectivoFilter === 'Todos' || course.colectivo === colectivoFilter;
         const movimientoMatch = movimientoFilter === 'Todos' || course.movimiento === movimientoFilter;
-        return dayMatch && lugarMatch && movimientoMatch;
+        return dayMatch && lugarMatch && colectivoMatch && movimientoMatch;
     });
-  }, [courses, dayFilter, lugarFilter, movimientoFilter]);
+  }, [courses, dayFilter, lugarFilter, colectivoFilter, movimientoFilter]);
 
   const jardinCourses = filteredCourses.filter(it => it.level === 'Jardín');
   const primariaCourses = filteredCourses.filter(it => it.level === 'Primaria');
@@ -60,6 +62,7 @@ export default function DashboardClient({ user }: { user: User | null }) {
   const handleClearFilters = () => {
     setDayFilter('Todos');
     setLugarFilter('Todos');
+    setColectivoFilter('Todos');
     setMovimientoFilter('Todos');
   };
 
@@ -68,9 +71,11 @@ export default function DashboardClient({ user }: { user: User | null }) {
       <DashboardHeader 
         dayFilter={dayFilter}
         lugarFilter={lugarFilter}
+        colectivoFilter={colectivoFilter}
         movimientoFilter={movimientoFilter}
         onDayChange={setDayFilter}
         onLugarChange={setLugarFilter}
+        onColectivoChange={setColectivoFilter}
         onMovimientoChange={setMovimientoFilter}
         onClearFilters={handleClearFilters}
       />

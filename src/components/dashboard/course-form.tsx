@@ -43,6 +43,7 @@ const formSchema = z.object({
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Formato de hora inválido. Use HH:mm'),
   day: z.enum(['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']),
   lugar: z.enum(['Chacra', 'Escuela']),
+  colectivo: z.enum(['Cachi', 'CRI']),
   movimiento: z.enum(['Llegada', 'Salida']),
 });
 
@@ -75,6 +76,7 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
       time: course?.time ?? '',
       day: course?.day ?? 'Lunes',
       lugar: course?.lugar ?? 'Escuela',
+      colectivo: course?.colectivo ?? 'Cachi',
       movimiento: course?.movimiento ?? 'Llegada',
     },
   });
@@ -191,7 +193,7 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
                   )}
                 />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
                 <FormField
                   control={form.control}
                   name="lugar"
@@ -200,11 +202,30 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
                       <FormLabel>Lugar</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                          <SelectTrigger><SelectValue placeholder="Seleccione el lugar" /></SelectTrigger>
+                          <SelectTrigger><SelectValue placeholder="Lugar" /></SelectTrigger>
                           </FormControl>
                           <SelectContent>
                               <SelectItem value="Chacra">Chacra</SelectItem>
                               <SelectItem value="Escuela">Escuela</SelectItem>
+                          </SelectContent>
+                      </Select>
+                      <FormMessage />
+                      </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="colectivo"
+                  render={({ field }) => (
+                      <FormItem>
+                      <FormLabel>Colectivo</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                          <SelectTrigger><SelectValue placeholder="Colectivo" /></SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                              <SelectItem value="Cachi">Cachi</SelectItem>
+                              <SelectItem value="CRI">CRI</SelectItem>
                           </SelectContent>
                       </Select>
                       <FormMessage />
@@ -219,7 +240,7 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
                     <FormLabel>Movimiento</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Seleccione el movimiento" /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder="Movimiento" /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
                             <SelectItem value="Llegada">Llegada</SelectItem>

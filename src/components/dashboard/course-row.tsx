@@ -23,6 +23,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { SplitFlapDisplay } from './split-flap-char';
+import { cn } from '@/lib/utils';
 
 export function CourseRow({ course }: { course: Course }) {
   const { toast } = useToast();
@@ -56,7 +57,7 @@ export function CourseRow({ course }: { course: Course }) {
     <>
       <ContextMenu>
         <ContextMenuTrigger asChild>
-          <div className="grid grid-cols-[1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium tracking-wider cursor-pointer hover:bg-muted/50 rounded-md">
+          <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium tracking-wider cursor-pointer hover:bg-muted/50 rounded-md">
             
             <div className="flex flex-col leading-none">
               <SplitFlapDisplay text={(grade || '').toUpperCase()} className="text-foreground" />
@@ -65,6 +66,12 @@ export function CourseRow({ course }: { course: Course }) {
 
             <SplitFlapDisplay text={course.time} className="text-foreground/80"/>
             <SplitFlapDisplay text={(course.lugar || '').toUpperCase()} className="text-foreground/80"/>
+            <SplitFlapDisplay 
+              text={(course.colectivo || '').toUpperCase()} 
+              className={cn("text-foreground/80", {
+                "text-green-500": course.colectivo === 'CRI'
+              })}
+            />
             <div className="flex justify-start items-center">
               <SplitFlapDisplay text={(course.movimiento || '').toUpperCase()} className="text-foreground/80" />
             </div>
