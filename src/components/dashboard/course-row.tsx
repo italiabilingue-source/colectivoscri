@@ -22,7 +22,6 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { SplitFlapDisplay } from './split-flap-char';
 import { cn } from '@/lib/utils';
 
 export function CourseRow({ course }: { course: Course }) {
@@ -50,31 +49,23 @@ export function CourseRow({ course }: { course: Course }) {
         setIsDeleting(false);
     }
   };
-  
-  const [grade, section] = (course.courseName || '').split(' ');
 
   return (
     <>
       <ContextMenu>
         <ContextMenuTrigger asChild>
-          <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-base md:text-lg lg:text-xl font-medium tracking-wider cursor-pointer hover:bg-muted/50 rounded-md">
-            
-            <div className="flex flex-col leading-none">
-              <SplitFlapDisplay text={(grade || '').toUpperCase()} className="text-foreground" />
-              {section && <SplitFlapDisplay text={section.toUpperCase()} className="text-foreground" />}
-            </div>
-
-            <SplitFlapDisplay text={course.time} className="text-foreground/80"/>
-            <SplitFlapDisplay text={(course.lugar || '').toUpperCase()} className="text-foreground/80"/>
-            <SplitFlapDisplay 
-              text={(course.colectivo || '').toUpperCase()} 
+          <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-sm md:text-base font-normal tracking-wider cursor-pointer hover:bg-muted/50 rounded-md">
+            <span className="text-foreground">{course.courseName}</span>
+            <span className="text-foreground/80">{course.time}</span>
+            <span className="text-foreground/80">{course.lugar}</span>
+            <span
               className={cn("text-foreground/80", {
-                "text-green-500": course.colectivo === 'Bili'
+                "text-green-500 font-semibold": course.colectivo === 'Bili'
               })}
-            />
-            <div className="flex justify-start items-center">
-              <SplitFlapDisplay text={(course.movimiento || '').toUpperCase()} className="text-foreground/80" />
-            </div>
+            >
+              {course.colectivo}
+            </span>
+            <span className="text-foreground/80">{course.movimiento}</span>
           </div>
         </ContextMenuTrigger>
         <ContextMenuContent>
