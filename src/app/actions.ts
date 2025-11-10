@@ -16,6 +16,7 @@ import {
 import { auth, db } from '@/lib/firebase';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import type { Course } from '@/types';
 
 const CourseSchema = z.object({
@@ -46,10 +47,12 @@ export async function signInWithEmail(prevState: any, formData: FormData) {
 
   try {
     await signInWithEmailAndPassword(auth, email, password);
-    return { message: 'Success', status: 'success' };
+    // This will be caught by the framework and trigger a redirect.
   } catch (e: any) {
     return { message: e.message, status: 'error' };
   }
+
+  redirect('/dashboard');
 }
 
 export async function signOutAction() {

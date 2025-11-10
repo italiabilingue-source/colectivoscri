@@ -24,7 +24,6 @@ function SubmitButton() {
 
 export function LoginForm() {
   const [state, formAction] = useActionState(signInWithEmail, null);
-  const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -40,9 +39,8 @@ export function LoginForm() {
         title: 'Éxito',
         description: 'Has iniciado sesión correctamente.',
       });
-      router.push('/dashboard');
     }
-  }, [state, router, toast]);
+  }, [state, toast]);
 
   return (
     <form action={formAction} className="space-y-4">
