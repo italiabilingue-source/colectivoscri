@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -52,34 +52,57 @@ type CourseFormValues = z.infer<typeof formSchema>;
 type CourseFormProps = {
   course?: Course;
   children?: React.ReactNode;
+  open?: boolean;
   onOpenChange?: (open: boolean) => void;
 };
 
-export function CourseForm({ course, children, onOpenChange }: CourseFormProps) {
-  const [open, setOpen] = useState(false);
+export function CourseForm({ course, children, open: controlledOpen, onOpenChange }: CourseFormProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  
   const handleOpenChange = (newOpen: boolean) => {
-    setOpen(newOpen);
-    if (onOpenChange) {
-      onOpenChange(newOpen);
+    if (isControlled) {
+        onOpenChange?.(newOpen);
+    } else {
+        setInternalOpen(newOpen);
     }
   };
 
   const form = useForm<CourseFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      id: course?.id,
-      level: course?.level ?? 'Primaria',
-      courseName: course?.courseName ?? '',
-      time: course?.time ?? '',
-      day: course?.day ?? 'Lunes',
-      lugar: course?.lugar ?? 'Escuela',
-      colectivo: course?.colectivo ?? 'Cachi',
-      movimiento: course?.movimiento ?? 'Llegada',
+    defaultValues: course ? {
+        ...course
+    } : {
+      level: 'Primaria',
+      courseName: '',
+      time: '',
+      day: 'Lunes',
+      lugar: 'Escuela',
+      colectivo: 'Cachi',
+      movimiento: 'Llegada',
     },
   });
+
+  useEffect(() => {
+    if (course) {
+        form.reset(course);
+    } else {
+        form.reset({
+            level: 'Primaria',
+            courseName: '',
+            time: '',
+            day: 'Lunes',
+            lugar: 'Escuela',
+            colectivo: 'Cachi',
+            movimiento: 'Llegada',
+        });
+    }
+  }, [course, form]);
+
 
   async function onSubmit(values: CourseFormValues) {
     setIsSubmitting(true);
@@ -91,7 +114,9 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
           description: `Horario ${course ? 'actualizado' : 'creado'} correctamente.`,
         });
         handleOpenChange(false);
-        form.reset();
+        if (!course) {
+            form.reset();
+        }
       } else {
         throw new Error(result?.error || 'Ocurrió un error desconocido.');
       }
@@ -132,7 +157,7 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nivel</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger><SelectValue placeholder="Seleccione el nivel" /></SelectTrigger>
                         </FormControl>
@@ -176,7 +201,7 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Día</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger><SelectValue placeholder="Seleccione el día" /></SelectTrigger>
                         </FormControl>
@@ -200,7 +225,7 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
                   render={({ field }) => (
                       <FormItem>
                       <FormLabel>Lugar</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                           <SelectTrigger><SelectValue placeholder="Lugar" /></SelectTrigger>
                           </FormControl>
@@ -219,7 +244,7 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
                   render={({ field }) => (
                       <FormItem>
                       <FormLabel>Colectivo</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                           <SelectTrigger><SelectValue placeholder="Colectivo" /></SelectTrigger>
                           </FormControl>
@@ -238,7 +263,7 @@ export function CourseForm({ course, children, onOpenChange }: CourseFormProps) 
                 render={({ field }) => (
                     <FormItem>
                     <FormLabel>Movimiento</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                         <SelectTrigger><SelectValue placeholder="Movimiento" /></SelectTrigger>
                         </FormControl>

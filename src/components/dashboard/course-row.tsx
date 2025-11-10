@@ -89,7 +89,7 @@ export function CourseRow({ course }: { course: Course }) {
         </ContextMenuContent>
       </ContextMenu>
 
-      <CourseForm course={course} onOpenChange={setIsFormOpen}>
+      <CourseForm course={course} open={isFormOpen} onOpenChange={setIsFormOpen}>
         <div />
       </CourseForm>
 
