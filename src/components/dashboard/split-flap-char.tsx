@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
 const CHARS = ' ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:';
+const ANIMATION_SPEED_MS = 50;
 
 type SplitFlapCharProps = {
   char: string;
@@ -12,47 +13,73 @@ type SplitFlapCharProps = {
 
 const SplitFlapChar = ({ char, className }: SplitFlapCharProps) => {
   const [displayChar, setDisplayChar] = useState(' ');
+  const [prevChar, setPrevChar] = useState(' ');
   const [isFlipping, setIsFlipping] = useState(false);
   const targetChar = char.toUpperCase();
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const animationFrameRef = useRef<number>();
+  const lastUpdateTimeRef = useRef<number>(0);
 
   useEffect(() => {
-    // Reset animation when the character prop changes
-    setDisplayChar(' ');
-  }, [char]);
-
-
-  useEffect(() => {
-    if (displayChar !== targetChar) {
-      setIsFlipping(true);
-      const currentIndex = CHARS.indexOf(displayChar);
-      const targetIndex = CHARS.indexOf(targetChar);
-
-      if (targetIndex === -1) {
-        setDisplayChar(targetChar);
+    if (targetChar === displayChar) {
+      if (isFlipping) {
         setIsFlipping(false);
-        return;
+      }
+      return;
+    }
+
+    setIsFlipping(true);
+
+    const animate = (timestamp: number) => {
+      if (!lastUpdateTimeRef.current) {
+        lastUpdateTimeRef.current = timestamp;
+      }
+      const elapsed = timestamp - lastUpdateTimeRef.current;
+
+      if (elapsed > ANIMATION_SPEED_MS) {
+        lastUpdateTimeRef.current = timestamp;
+        setDisplayChar(prevDisplayChar => {
+          if (prevDisplayChar === targetChar) {
+            if (animationFrameRef.current) {
+              cancelAnimationFrame(animationFrameRef.current);
+            }
+            setIsFlipping(false);
+            return prevDisplayChar;
+          }
+
+          const currentIndex = CHARS.indexOf(prevDisplayChar);
+          const nextIndex = (currentIndex + 1) % CHARS.length;
+          const nextChar = CHARS[nextIndex] || ' ';
+          setPrevChar(prevDisplayChar);
+          
+          if (nextChar === targetChar) {
+             if (animationFrameRef.current) {
+              cancelAnimationFrame(animationFrameRef.current);
+            }
+            // Set flipping to false on the next render cycle after the final character is set
+            setTimeout(() => setIsFlipping(false), ANIMATION_SPEED_MS);
+          }
+
+          return nextChar;
+        });
       }
       
-      let nextIndex = (currentIndex + 1) % CHARS.length;
-      
-      timeoutRef.current = setTimeout(() => {
-        setDisplayChar(CHARS[nextIndex]);
-      }, 50); // Animation speed
-    } else {
-      setIsFlipping(false);
-    }
-    
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    animationFrameRef.current = requestAnimationFrame(animate);
+
     return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    }
-  }, [displayChar, targetChar]);
-
-
-  const prevChar = CHARS[(CHARS.indexOf(displayChar) - 1 + CHARS.length) % CHARS.length];
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [targetChar, displayChar, isFlipping]);
+  
+  const currentPrevChar = CHARS[(CHARS.indexOf(displayChar) - 1 + CHARS.length) % CHARS.length];
 
   return (
     <div className={cn("relative w-[1ch] h-[1.2em] text-center perspective-300", className)}>
+      {/* Static characters */}
       <div className="absolute inset-0">
         <div className="absolute top-0 left-0 right-0 bottom-1/2 overflow-hidden">
           <div className="p-[0.1em]">{displayChar}</div>
@@ -62,24 +89,21 @@ const SplitFlapChar = ({ char, className }: SplitFlapCharProps) => {
         </div>
       </div>
       
+      {/* Flipping animation */}
       {isFlipping && (
-        <div className="absolute inset-0 flip-card animate-flip">
-          <div className="absolute top-0 left-0 right-0 bottom-1/2 overflow-hidden flip-card-front">
-             <div className="p-[0.1em]">{prevChar}</div>
+        <div className="absolute inset-0 flip-card">
+          <div className="absolute top-0 left-0 right-0 bottom-1/2 overflow-hidden flip-card-front animate-flip-top">
+             <div className="p-[0.1em]">{currentPrevChar}</div>
           </div>
-          <div className="absolute top-1/2 left-0 right-0 bottom-0 overflow-hidden flip-card-back">
+          <div className="absolute top-1/2 left-0 right-0 bottom-0 overflow-hidden flip-card-back animate-flip-bottom">
             <div className="p-[0.1em] -translate-y-1/2">{displayChar}</div>
           </div>
         </div>
       )}
-
-      {/* Static background character */}
-      <div className="absolute -z-10 top-1/2 left-0 right-0 bottom-0 overflow-hidden">
-        <div className="p-[0.1em] -translate-y-1/2">{displayChar}</div>
-      </div>
     </div>
   );
 };
+
 
 type SplitFlapDisplayProps = {
   text: string;
@@ -90,7 +114,7 @@ export const SplitFlapDisplay = ({ text, className }: SplitFlapDisplayProps) => 
   return (
     <div className={cn("flex", className)}>
       {text.split('').map((char, index) => (
-        <SplitFlapChar key={index} char={char} />
+        <SplitFlapChar key={`${text}-${index}`} char={char} />
       ))}
     </div>
   );
