@@ -1,11 +1,6 @@
 'use server';
 
 import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-} from 'firebase/auth';
-import {
   collection,
   addDoc,
   updateDoc,
@@ -13,10 +8,9 @@ import {
   doc,
   serverTimestamp
 } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
+import { db } from '@/lib/firebase';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 import type { Course } from '@/types';
 
 const CourseSchema = z.object({
@@ -29,40 +23,8 @@ const CourseSchema = z.object({
   notes: z.string().optional(),
 });
 
-export async function signUpWithEmail(prevState: any, formData: FormData) {
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
-
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    return { message: 'Success', status: 'success' };
-  } catch (e: any) {
-    return { message: e.message, status: 'error' };
-  }
-}
-
-export async function signInWithEmail(prevState: any, formData: FormData) {
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
-
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    revalidatePath('/dashboard');
-    return { message: 'Success', status: 'success' };
-  } catch (e: any) {
-    return { message: e.message, status: 'error' };
-  }
-}
-
-export async function signOutAction() {
-  await signOut(auth);
-  redirect('/');
-}
-
 export async function addOrUpdateCourse(data: Omit<Course, 'id' | 'createdAt' | 'userId'> & { id?: string }) {
-    const user = auth.currentUser;
-    if (!user) throw new Error('Debes iniciar sesión para realizar esta acción.');
-
+    // La validación de usuario se ha eliminado
     const validatedFields = CourseSchema.safeParse(data);
     if (!validatedFields.success) {
         throw new Error('Datos inválidos');
@@ -77,7 +39,7 @@ export async function addOrUpdateCourse(data: Omit<Course, 'id' | 'createdAt' | 
         } else {
             await addDoc(collection(db, 'courses'), {
                 ...validatedFields.data,
-                userId: user.uid,
+                // userId ya no es necesario
                 createdAt: serverTimestamp(),
             });
         }
@@ -92,9 +54,7 @@ export async function addOrUpdateCourse(data: Omit<Course, 'id' | 'createdAt' | 
 
 
 export async function deleteCourse(id: string) {
-    const user = auth.currentUser;
-    if (!user) throw new Error('Debes iniciar sesión para realizar esta acción.');
-    
+    // La validación de usuario se ha eliminado
     try {
         await deleteDoc(doc(db, 'courses', id));
         revalidatePath('/');

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { LogIn, Flag } from 'lucide-react';
+import { Flag, Shield } from 'lucide-react';
 
 export function PublicHeader() {
   return (
@@ -14,9 +14,9 @@ export function PublicHeader() {
         </h1>
       </div>
       <Button asChild>
-        <Link href="/login">
-          <LogIn className="mr-2 h-4 w-4" />
-          Admin Login
+        <Link href="/dashboard">
+          <Shield className="mr-2 h-4 w-4" />
+          Panel de Admin
         </Link>
       </Button>
     </header>

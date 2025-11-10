@@ -20,12 +20,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Edit, Trash2, MoreVertical, Ban } from 'lucide-react';
+import { Edit, Trash2, MoreVertical } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { useAuth } from '@/hooks/use-auth';
 
 export function CourseRow({ course }: { course: Course }) {
-  const { user } = useAuth();
   const { toast } = useToast();
   const [stylizedStatus, setStylizedStatus] = useState(course.status.toUpperCase());
   const [isDeleting, setIsDeleting] = useState(false);
@@ -71,58 +69,51 @@ export function CourseRow({ course }: { course: Course }) {
         dangerouslySetInnerHTML={{ __html: stylizedStatus.replace(/\\/g, '') }}
       />
       <div className="flex justify-end items-center">
-        {user && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreVertical className="h-5 w-5" />
-                <span className="sr-only">Acciones</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <CourseForm course={course}>
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  <span>Editar</span>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <MoreVertical className="h-5 w-5" />
+              <span className="sr-only">Acciones</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <CourseForm course={course}>
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                <Edit className="mr-2 h-4 w-4" />
+                <span>Editar</span>
+              </DropdownMenuItem>
+            </CourseForm>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  <span>Eliminar</span>
                 </DropdownMenuItem>
-              </CourseForm>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <DropdownMenuItem
-                    className="text-destructive focus:text-destructive"
-                    onSelect={(e) => e.preventDefault()}
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta acción no se puede deshacer. Esto eliminará permanentemente el curso.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    <span>Eliminar</span>
-                  </DropdownMenuItem>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Esta acción no se puede deshacer. Esto eliminará permanentemente el curso.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleDelete}
-                      disabled={isDeleting}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
-                      {isDeleting ? 'Eliminando...' : 'Eliminar'}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
-        {!user && (
-          <div className="h-8 w-8 flex items-center justify-center">
-            <Ban className="h-5 w-5 text-muted-foreground" />
-          </div>
-        )}
+                    {isDeleting ? 'Eliminando...' : 'Eliminar'}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

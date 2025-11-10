@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, query, where, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
 import { db } from '@/lib/firebase';
 import type { Course } from '@/types';
@@ -11,17 +11,15 @@ import { BookCopy, School, GraduationCap } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Loader2 } from 'lucide-react';
 
-export default function DashboardClient({ user }: { user: User }) {
+export default function DashboardClient({ user }: { user: User | null }) {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
-
     setLoading(true);
+    // Query para obtener todos los cursos, ya que no hay usuario.
     const q = query(
       collection(db, 'courses'),
-      where('userId', '==', user.uid),
       orderBy('time', 'asc')
     );
 
@@ -38,7 +36,7 @@ export default function DashboardClient({ user }: { user: User }) {
     });
 
     return () => unsubscribe();
-  }, [user]);
+  }, []);
 
   const jardinCourses = courses.filter(it => it.level === 'Jardín');
   const primariaCourses = courses.filter(it => it.level === 'Primaria');
