@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Course } from '@/types';
-import { CourseBoard } from '@/components/dashboard/course-board';
+import { CourseBoard } from '@/components/public/course-board';
 import { PublicHeader } from '@/components/public-header';
 import { BookCopy, School, GraduationCap } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -50,27 +50,23 @@ export default function HomePage() {
              </div>
         ) : (
             <div className="flex flex-col xl:flex-row gap-8 h-full">
-                <div className="flex flex-col lg:flex-row gap-8 flex-1">
-                    <CourseBoard
-                        title="JARDÍN"
-                        icon={<BookCopy className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
-                        courses={jardinCourses}
-                    />
-                    <Separator orientation="vertical" className="hidden lg:block bg-border/50" />
-                     <CourseBoard
-                        title="PRIMARIA"
-                        icon={<School className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
-                        courses={primariaCourses}
-                    />
-                </div>
+                <CourseBoard
+                    title="JARDÍN"
+                    icon={<BookCopy className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
+                    courses={jardinCourses}
+                />
                 <Separator orientation="vertical" className="hidden xl:block bg-border/50" />
-                 <div className="flex flex-col lg:flex-row gap-8 flex-1">
-                    <CourseBoard
-                        title="SECUNDARIA"
-                        icon={<GraduationCap className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
-                        courses={secundariaCourses}
-                    />
-                </div>
+                 <CourseBoard
+                    title="PRIMARIA"
+                    icon={<School className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
+                    courses={primariaCourses}
+                />
+                <Separator orientation="vertical" className="hidden xl:block bg-border/50" />
+                <CourseBoard
+                    title="SECUNDARIA"
+                    icon={<GraduationCap className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
+                    courses={secundariaCourses}
+                />
             </div>
         )}
       </main>
