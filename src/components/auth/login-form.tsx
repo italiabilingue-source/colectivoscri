@@ -1,9 +1,9 @@
 'use client';
 
-import { useActionState, useFormStatus } from 'react';
+import { useActionState, useEffect } from 'react';
+import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useEffect } from 'react';
 
 import { signInWithEmail } from '@/app/actions';
 import { Button } from '@/components/ui/button';
