@@ -17,6 +17,12 @@ const SplitFlapChar = ({ char, className }: SplitFlapCharProps) => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    // Reset animation when the character prop changes
+    setDisplayChar(' ');
+  }, [char]);
+
+
+  useEffect(() => {
     if (displayChar !== targetChar) {
       setIsFlipping(true);
       const currentIndex = CHARS.indexOf(displayChar);
@@ -42,18 +48,6 @@ const SplitFlapChar = ({ char, className }: SplitFlapCharProps) => {
     }
   }, [displayChar, targetChar]);
 
-  useEffect(() => {
-    // Kickstart animation on initial mount or when char prop changes
-    if (displayChar !== targetChar) {
-        setDisplayChar(displayChar);
-    } else {
-        const currentIndex = CHARS.indexOf(displayChar);
-        let nextIndex = (currentIndex + 1) % CHARS.length;
-        if(CHARS[nextIndex] !== targetChar) {
-             setDisplayChar(CHARS[nextIndex]);
-        }
-    }
-  }, [char]);
 
   const prevChar = CHARS[(CHARS.indexOf(displayChar) - 1 + CHARS.length) % CHARS.length];
 
