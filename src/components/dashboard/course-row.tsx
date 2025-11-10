@@ -25,21 +25,21 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 export function CourseRow({ course }: { course: Course }) {
   const { toast } = useToast();
-  const [stylizedStatus, setStylizedStatus] = useState(course.status.toUpperCase());
+  const [stylizedStatus, setStylizedStatus] = useState(course.movimiento.toUpperCase());
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     async function getStylizedMessage() {
       try {
-        const result = await stylizeStatusMessage({ statusMessage: course.status });
+        const result = await stylizeStatusMessage({ statusMessage: course.movimiento });
         setStylizedStatus(result.stylizedMessage);
       } catch (error) {
         console.error("Failed to stylize status message:", error);
-        setStylizedStatus(course.status.toUpperCase());
+        setStylizedStatus(course.movimiento.toUpperCase());
       }
     }
     getStylizedMessage();
-  }, [course.status]);
+  }, [course.movimiento]);
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -60,12 +60,12 @@ export function CourseRow({ course }: { course: Course }) {
   };
 
   return (
-    <div className="grid grid-cols-[1.5fr_1fr_1fr_1.5fr_auto] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium tracking-wider">
+    <div className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium tracking-wider">
       <SplitFlapDisplay text={course.className.toUpperCase()} className="text-primary" />
       <SplitFlapDisplay text={course.time} />
-      <SplitFlapDisplay text={course.day.substring(0, 3).toUpperCase()} />
+      <SplitFlapDisplay text={course.lugar.substring(0, 3).toUpperCase()} />
       <div
-        className="text-primary font-bold"
+        className="text-primary font-bold text-base"
         dangerouslySetInnerHTML={{ __html: stylizedStatus.replace(/\\/g, '') }}
       />
       <div className="flex justify-end items-center">

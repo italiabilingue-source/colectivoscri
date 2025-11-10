@@ -6,8 +6,8 @@ export type Course = {
   level: 'Jardín' | 'Primaria' | 'Secundaria';
   className: string;
   time: string; // HH:mm format
-  day: string;
+  lugar: string;
   notes?: string;
-  status: string;
+  movimiento: string;
   createdAt: Timestamp;
 };

@@ -43,8 +43,8 @@ const formSchema = z.object({
   level: z.enum(['Jardín', 'Primaria', 'Secundaria']),
   className: z.string().min(1, 'La clase es requerida').max(2, 'Máximo 2 caracteres'),
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Formato de hora inválido. Use HH:mm'),
-  day: z.string().min(1, 'El día es requerido'),
-  status: z.string().min(1, 'El estado es requerido'),
+  lugar: z.string().min(1, 'El lugar es requerido'),
+  movimiento: z.string().min(1, 'El movimiento es requerido'),
   notes: z.string().optional(),
 });
 
@@ -68,8 +68,8 @@ export function CourseForm({ course, children }: CourseFormProps) {
       level: course?.level ?? 'Primaria',
       className: course?.className ?? '',
       time: course?.time ?? '',
-      day: course?.day ?? 'Lunes',
-      status: course?.status ?? 'Programado',
+      lugar: course?.lugar ?? 'Entrada',
+      movimiento: course?.movimiento ?? 'Programado',
       notes: course?.notes ?? '',
     },
   });
@@ -102,18 +102,18 @@ export function CourseForm({ course, children }: CourseFormProps) {
   const handleGenerateNotes = async () => {
     setIsGeneratingNotes(true);
     try {
-        const { level, className, time, day } = form.getValues();
+        const { level, className, time, lugar, movimiento } = form.getValues();
 
-        if (!level || !className || !time || !day) {
+        if (!level || !className || !time || !lugar) {
             toast({
                 title: 'No se pueden generar notas',
-                description: 'Por favor, complete Nivel, Clase, Hora y Día primero.',
+                description: 'Por favor, complete Nivel, Clase, Hora y Lugar primero.',
                 variant: 'destructive',
             });
             return;
         }
 
-        const prompt = `Un curso de ${level}, clase ${className} a las ${time} el ${day}.`;
+        const prompt = `Un curso de ${level}, clase ${className} a las ${time} en ${lugar}. Movimiento: ${movimiento}`;
         const result = await generateItineraryNotes({ prompt });
         form.setValue('notes', result.notes, { shouldValidate: true });
         toast({
@@ -197,22 +197,17 @@ export function CourseForm({ course, children }: CourseFormProps) {
                 />
                 <FormField
                 control={form.control}
-                name="day"
+                name="lugar"
                 render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Día</FormLabel>
+                    <FormLabel>Lugar</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Seleccione el día" /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder="Seleccione el lugar" /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                            <SelectItem value="Lunes">Lunes</SelectItem>
-                            <SelectItem value="Martes">Martes</SelectItem>
-                            <SelectItem value="Miércoles">Miércoles</SelectItem>
-                            <SelectItem value="Jueves">Jueves</SelectItem>
-                            <SelectItem value="Viernes">Viernes</SelectItem>
-                            <SelectItem value="Sábado">Sábado</SelectItem>
-                            <SelectItem value="Domingo">Domingo</SelectItem>
+                            <SelectItem value="Entrada">Entrada</SelectItem>
+                            <SelectItem value="Salida">Salida</SelectItem>
                         </SelectContent>
                     </Select>
                     <FormMessage />
@@ -222,18 +217,19 @@ export function CourseForm({ course, children }: CourseFormProps) {
             </div>
              <FormField
                 control={form.control}
-                name="status"
+                name="movimiento"
                 render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Estado</FormLabel>
+                    <FormLabel>Movimiento</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Seleccione el estado" /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder="Seleccione el movimiento" /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                            <SelectItem value="Programado">Programado</SelectItem>
-                            <SelectItem value="Activo">Activo</SelectItem>
-                            <SelectItem value="Finalizado">Finalizado</SelectItem>
+                            <SelectItem value="A Tiempo">A Tiempo</SelectItem>
+                            <SelectItem value="En Horario">En Horario</SelectItem>
+                            <SelectItem value="Adelantado">Adelantado</SelectItem>
+                            <SelectItem value="Demorado">Demorado</SelectItem>
                             <SelectItem value="Cancelado">Cancelado</SelectItem>
                         </SelectContent>
                     </Select>

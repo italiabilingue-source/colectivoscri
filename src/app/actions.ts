@@ -18,8 +18,8 @@ const CourseSchema = z.object({
   level: z.enum(['Jardín', 'Primaria', 'Secundaria']),
   className: z.string().min(1, 'La clase es requerida'),
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Formato de hora inválido. Use HH:mm'),
-  day: z.string().min(1, 'El día es requerido'),
-  status: z.string().min(1, 'El estado es requerido'),
+  lugar: z.string().min(1, 'El lugar es requerido'),
+  movimiento: z.string().min(1, 'El movimiento es requerido'),
   notes: z.string().optional(),
 });
 
