@@ -18,11 +18,10 @@ const CourseSchema = z.object({
   level: z.enum(['Jardín', 'Primaria', 'Secundaria']),
   className: z.string().min(1, 'La clase es requerida'),
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Formato de hora inválido. Use HH:mm'),
-  lugar: z.string().min(1, 'El lugar es requerido'),
+  lugar: z.enum(['Llegada', 'Salida']),
 });
 
-export async function addOrUpdateCourse(data: Omit<Course, 'id' | 'createdAt' | 'userId'> & { id?: string }) {
-    // La validación de usuario se ha eliminado
+export async function addOrUpdateCourse(data: Omit<Course, 'id' | 'createdAt'> & { id?: string }) {
     const validatedFields = CourseSchema.safeParse(data);
     if (!validatedFields.success) {
         throw new Error('Datos inválidos');
@@ -37,7 +36,6 @@ export async function addOrUpdateCourse(data: Omit<Course, 'id' | 'createdAt' | 
         } else {
             await addDoc(collection(db, 'courses'), {
                 ...validatedFields.data,
-                // userId ya no es necesario
                 createdAt: serverTimestamp(),
             });
         }
@@ -52,13 +50,13 @@ export async function addOrUpdateCourse(data: Omit<Course, 'id' | 'createdAt' | 
 
 
 export async function deleteCourse(id: string) {
-    // La validación de usuario se ha eliminado
     try {
         await deleteDoc(doc(db, 'courses', id));
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { success: true };
-    } catch (error) {
+    } catch (error)
+        {
         console.error("Error al eliminar el documento: ", error);
         return { success: false, error: (error as Error).message };
     }

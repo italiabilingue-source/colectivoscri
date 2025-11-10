@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { CourseForm } from './course-form';
 import { deleteCourse } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,14 +16,20 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Edit, Trash2, MoreVertical } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Edit, Trash2 } from 'lucide-react';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 
 export function CourseRow({ course }: { course: Course }) {
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -34,68 +39,67 @@ export function CourseRow({ course }: { course: Course }) {
         title: "Curso Eliminado",
         description: "El curso ha sido eliminado.",
       });
+      setIsAlertOpen(false);
     } catch (error) {
       toast({
         title: "Error",
         description: "No se pudo eliminar el curso.",
         variant: "destructive",
       });
-      setIsDeleting(false);
+    } finally {
+        setIsDeleting(false);
     }
   };
 
   return (
-    <div className="grid grid-cols-[1fr_1fr_1fr_auto] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium tracking-wider">
-      <SplitFlapDisplay text={course.className.toUpperCase()} className="text-foreground" />
-      <SplitFlapDisplay text={course.time} className="text-foreground/80"/>
-      <SplitFlapDisplay text={course.lugar.substring(0, 3).toUpperCase()} className="text-foreground/80"/>
-      <div className="flex justify-end items-center">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreVertical className="h-5 w-5" />
-              <span className="sr-only">Acciones</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <CourseForm course={course}>
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <Edit className="mr-2 h-4 w-4" />
-                <span>Editar</span>
-              </DropdownMenuItem>
-            </CourseForm>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <DropdownMenuItem
-                  className="text-destructive focus:text-destructive"
-                  onSelect={(e) => e.preventDefault()}
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  <span>Eliminar</span>
-                </DropdownMenuItem>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Esta acción no se puede deshacer. Esto eliminará permanentemente el curso.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDelete}
-                    disabled={isDeleting}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  >
-                    {isDeleting ? 'Eliminando...' : 'Eliminar'}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </div>
+    <>
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <div className="grid grid-cols-[1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium tracking-wider cursor-pointer hover:bg-muted/50 rounded-md">
+            <SplitFlapDisplay text={course.className.toUpperCase()} className="text-foreground" />
+            <SplitFlapDisplay text={course.time} className="text-foreground/80"/>
+            <SplitFlapDisplay text={course.lugar.substring(0, 3).toUpperCase()} className="text-foreground/80"/>
+            <div className="flex justify-end items-center">
+              <SplitFlapDisplay text={course.lugar.toUpperCase()} className="text-foreground/80" />
+            </div>
+          </div>
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem onSelect={() => setIsFormOpen(true)}>
+            <Edit className="mr-2 h-4 w-4" />
+            <span>Editar</span>
+          </ContextMenuItem>
+          <ContextMenuItem onSelect={() => setIsAlertOpen(true)} className="text-destructive focus:text-destructive">
+            <Trash2 className="mr-2 h-4 w-4" />
+            <span>Eliminar</span>
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
+
+      <CourseForm course={course} onOpenChange={setIsFormOpen}>
+        <div />
+      </CourseForm>
+
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. Esto eliminará permanentemente el curso.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? 'Eliminando...' : 'Eliminar'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

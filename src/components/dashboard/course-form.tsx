@@ -41,7 +41,7 @@ const formSchema = z.object({
   level: z.enum(['Jardín', 'Primaria', 'Secundaria']),
   className: z.string().min(1, 'La clase es requerida').max(2, 'Máximo 2 caracteres'),
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Formato de hora inválido. Use HH:mm'),
-  lugar: z.string().min(1, 'El lugar es requerido'),
+  lugar: z.enum(['Llegada', 'Salida']),
 });
 
 type CourseFormValues = z.infer<typeof formSchema>;
@@ -49,12 +49,20 @@ type CourseFormValues = z.infer<typeof formSchema>;
 type CourseFormProps = {
   course?: Course;
   children?: React.ReactNode;
+  onOpenChange?: (open: boolean) => void;
 };
 
-export function CourseForm({ course, children }: CourseFormProps) {
+export function CourseForm({ course, children, onOpenChange }: CourseFormProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (onOpenChange) {
+      onOpenChange(newOpen);
+    }
+  };
 
   const form = useForm<CourseFormValues>({
     resolver: zodResolver(formSchema),
@@ -63,7 +71,7 @@ export function CourseForm({ course, children }: CourseFormProps) {
       level: course?.level ?? 'Primaria',
       className: course?.className ?? '',
       time: course?.time ?? '',
-      lugar: course?.lugar ?? 'Entrada',
+      lugar: course?.lugar ?? 'Llegada',
     },
   });
 
@@ -76,7 +84,7 @@ export function CourseForm({ course, children }: CourseFormProps) {
           title: 'Éxito',
           description: `Curso ${course ? 'actualizado' : 'creado'} correctamente.`,
         });
-        setOpen(false);
+        handleOpenChange(false);
         form.reset();
       } else {
         throw new Error(result?.error || 'Ocurrió un error desconocido.');
@@ -93,7 +101,7 @@ export function CourseForm({ course, children }: CourseFormProps) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {children ?? (
           <Button>
@@ -123,7 +131,7 @@ export function CourseForm({ course, children }: CourseFormProps) {
                           <SelectTrigger><SelectValue placeholder="Seleccione el nivel" /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Jardín">Jardín</SelectItem>
+                          <Jardín>Jardín</Jardín>
                           <SelectItem value="Primaria">Primaria</SelectItem>
                           <SelectItem value="Secundaria">Secundaria</SelectItem>
                         </SelectContent>
@@ -167,7 +175,7 @@ export function CourseForm({ course, children }: CourseFormProps) {
                         <SelectTrigger><SelectValue placeholder="Seleccione el lugar" /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                            <SelectItem value="Entrada">Entrada</SelectItem>
+                            <SelectItem value="Llegada">Llegada</SelectItem>
                             <SelectItem value="Salida">Salida</SelectItem>
                         </SelectContent>
                     </Select>
@@ -187,4 +195,3 @@ export function CourseForm({ course, children }: CourseFormProps) {
       </DialogContent>
     </Dialog>
   );
-}
