@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
 import { db } from '@/lib/firebase';
@@ -14,10 +14,15 @@ import { Loader2 } from 'lucide-react';
 export default function DashboardClient({ user }: { user: User | null }) {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // State for filters
+  const [dayFilter, setDayFilter] = useState('Todos');
+  const [lugarFilter, setLugarFilter] = useState('Todos');
+  const [movimientoFilter, setMovimientoFilter] = useState('Todos');
+
 
   useEffect(() => {
     setLoading(true);
-    // Query para obtener todos los cursos, ordenados por día y luego por hora.
     const q = query(
       collection(db, 'courses'),
       orderBy('day', 'asc'),
@@ -39,13 +44,36 @@ export default function DashboardClient({ user }: { user: User | null }) {
     return () => unsubscribe();
   }, []);
 
-  const jardinCourses = courses.filter(it => it.level === 'Jardín');
-  const primariaCourses = courses.filter(it => it.level === 'Primaria');
-  const secundariaCourses = courses.filter(it => it.level === 'Secundaria');
+  const filteredCourses = useMemo(() => {
+    return courses.filter(course => {
+        const dayMatch = dayFilter === 'Todos' || course.day === dayFilter;
+        const lugarMatch = lugarFilter === 'Todos' || course.lugar === lugarFilter;
+        const movimientoMatch = movimientoFilter === 'Todos' || course.movimiento === movimientoFilter;
+        return dayMatch && lugarMatch && movimientoMatch;
+    });
+  }, [courses, dayFilter, lugarFilter, movimientoFilter]);
+
+  const jardinCourses = filteredCourses.filter(it => it.level === 'Jardín');
+  const primariaCourses = filteredCourses.filter(it => it.level === 'Primaria');
+  const secundariaCourses = filteredCourses.filter(it => it.level === 'Secundaria');
+
+  const handleClearFilters = () => {
+    setDayFilter('Todos');
+    setLugarFilter('Todos');
+    setMovimientoFilter('Todos');
+  };
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      <DashboardHeader />
+      <DashboardHeader 
+        dayFilter={dayFilter}
+        lugarFilter={lugarFilter}
+        movimientoFilter={movimientoFilter}
+        onDayChange={setDayFilter}
+        onLugarChange={setLugarFilter}
+        onMovimientoChange={setMovimientoFilter}
+        onClearFilters={handleClearFilters}
+      />
       <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
         {loading ? (
              <div className="flex h-full w-full items-center justify-center">
