@@ -34,7 +34,7 @@ export async function signUpWithEmail(prevState: any, formData: FormData) {
   const password = formData.get('password') as string;
 
   try {
-    await createUserWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     return { message: 'Success', status: 'success' };
   } catch (e: any) {
     return { message: e.message, status: 'error' };
@@ -47,6 +47,7 @@ export async function signInWithEmail(prevState: any, formData: FormData) {
 
   try {
     await signInWithEmailAndPassword(auth, email, password);
+    revalidatePath('/dashboard');
     return { message: 'Success', status: 'success' };
   } catch (e: any) {
     return { message: e.message, status: 'error' };
