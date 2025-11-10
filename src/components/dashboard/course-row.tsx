@@ -32,7 +32,12 @@ export function CourseRow({ course }: { course: Course }) {
     async function getStylizedMessage() {
       try {
         const result = await stylizeStatusMessage({ statusMessage: course.movimiento });
-        setStylizedStatus(result.stylizedMessage);
+        // Use red for 'Cancelado' and 'Demorado', otherwise use primary color (green)
+        const color = (result.stylizedMessage.toLowerCase().includes('cancelado') || result.stylizedMessage.toLowerCase().includes('demorado'))
+          ? '#ef4444' // red-500
+          : 'hsl(var(--primary))';
+        const styledMessage = `<span style='color:${color};'>${result.stylizedMessage}</span>`
+        setStylizedStatus(styledMessage);
       } catch (error) {
         console.error("Failed to stylize status message:", error);
         setStylizedStatus(course.movimiento.toUpperCase());
@@ -61,11 +66,11 @@ export function CourseRow({ course }: { course: Course }) {
 
   return (
     <div className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium tracking-wider">
-      <SplitFlapDisplay text={course.className.toUpperCase()} className="text-primary" />
-      <SplitFlapDisplay text={course.time} />
-      <SplitFlapDisplay text={course.lugar.substring(0, 3).toUpperCase()} />
+      <SplitFlapDisplay text={course.className.toUpperCase()} className="text-foreground" />
+      <SplitFlapDisplay text={course.time} className="text-foreground/80"/>
+      <SplitFlapDisplay text={course.lugar.substring(0, 3).toUpperCase()} className="text-foreground/80"/>
       <div
-        className="text-primary font-bold text-base"
+        className="font-bold text-base"
         dangerouslySetInnerHTML={{ __html: stylizedStatus.replace(/\\/g, '') }}
       />
       <div className="flex justify-end items-center">
