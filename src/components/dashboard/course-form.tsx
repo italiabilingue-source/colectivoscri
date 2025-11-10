@@ -43,7 +43,7 @@ const formSchema = z.object({
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Formato de hora inválido. Use HH:mm'),
   day: z.enum(['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']),
   lugar: z.enum(['Chacra', 'Escuela']),
-  colectivo: z.enum(['Cachi', 'CRI']),
+  colectivo: z.enum(['Cachi', 'Bili']),
   movimiento: z.enum(['Llegada', 'Salida']),
 });
 
@@ -250,7 +250,7 @@ export function CourseForm({ course, children, open: controlledOpen, onOpenChang
                           </FormControl>
                           <SelectContent>
                               <SelectItem value="Cachi">Cachi</SelectItem>
-                              <SelectItem value="CRI">CRI</SelectItem>
+                              <SelectItem value="Bili">Bili</SelectItem>
                           </SelectContent>
                       </Select>
                       <FormMessage />

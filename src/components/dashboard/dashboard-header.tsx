@@ -72,7 +72,7 @@ export function DashboardHeader({
               <SelectContent>
                 <SelectItem value="Todos">Todos</SelectItem>
                 <SelectItem value="Cachi">Cachi</SelectItem>
-                <SelectItem value="CRI">CRI</SelectItem>
+                <SelectItem value="Bili">Bili</SelectItem>
               </SelectContent>
             </Select>
 

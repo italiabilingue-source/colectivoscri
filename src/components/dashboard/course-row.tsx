@@ -69,7 +69,7 @@ export function CourseRow({ course }: { course: Course }) {
             <SplitFlapDisplay 
               text={(course.colectivo || '').toUpperCase()} 
               className={cn("text-foreground/80", {
-                "text-green-500": course.colectivo === 'CRI'
+                "text-green-500": course.colectivo === 'Bili'
               })}
             />
             <div className="flex justify-start items-center">
