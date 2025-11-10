@@ -85,28 +85,22 @@ export default function DashboardClient({ user }: { user: User | null }) {
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
              </div>
         ) : (
-            <div className="flex flex-col xl:flex-row gap-8 h-full">
-                <div className="flex flex-col lg:flex-row gap-8 flex-1">
-                    <CourseBoard
-                        title="JARDÍN"
-                        icon={<BookCopy className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
-                        courses={jardinCourses}
-                    />
-                    <Separator orientation="vertical" className="hidden lg:block bg-border/50" />
-                     <CourseBoard
-                        title="PRIMARIA"
-                        icon={<School className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
-                        courses={primariaCourses}
-                    />
-                </div>
-                <Separator orientation="vertical" className="hidden xl:block bg-border/50" />
-                 <div className="flex flex-col lg:flex-row gap-8 flex-1">
-                    <CourseBoard
-                        title="SECUNDARIA"
-                        icon={<GraduationCap className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
-                        courses={secundariaCourses}
-                    />
-                </div>
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 h-full">
+                <CourseBoard
+                    title="JARDÍN"
+                    icon={<BookCopy className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
+                    courses={jardinCourses}
+                />
+                 <CourseBoard
+                    title="PRIMARIA"
+                    icon={<School className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
+                    courses={primariaCourses}
+                />
+                <CourseBoard
+                    title="SECUNDARIA"
+                    icon={<GraduationCap className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
+                    courses={secundariaCourses}
+                />
             </div>
         )}
       </main>

@@ -103,7 +103,7 @@ export default function HomePage() {
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
           </div>
         ) : (
-          <div className="flex flex-col xl:flex-row gap-8 w-full">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 w-full">
             <CourseBoard
               title="JARDÍN"
               icon={<BookCopy className="w-8 h-8 md:w-10 md:h-10 text-primary" />}

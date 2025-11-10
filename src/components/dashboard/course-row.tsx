@@ -57,7 +57,7 @@ export function CourseRow({ course }: { course: Course }) {
     <>
       <ContextMenu>
         <ContextMenuTrigger asChild>
-          <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium tracking-wider cursor-pointer hover:bg-muted/50 rounded-md">
+          <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-base md:text-lg lg:text-xl font-medium tracking-wider cursor-pointer hover:bg-muted/50 rounded-md">
             
             <div className="flex flex-col leading-none">
               <SplitFlapDisplay text={(grade || '').toUpperCase()} className="text-foreground" />
