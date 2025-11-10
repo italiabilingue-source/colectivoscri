@@ -1,6 +1,6 @@
 import type { Course } from '@/types';
+import { CourseRow } from './course-row';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { SplitFlapDisplay } from '@/components/dashboard/split-flap-char';
 
 type CourseBoardProps = {
   title: string;
@@ -28,12 +28,10 @@ export function CourseBoard({ title, icon, courses }: CourseBoardProps) {
           {courses.length > 0 ? (
             courses.map(course => (
               <div key={course.id} className="grid grid-cols-[1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium tracking-wider">
-                <SplitFlapDisplay text={course.courseName.toUpperCase()} className="text-foreground" />
-                <SplitFlapDisplay text={course.time} className="text-foreground/80"/>
-                <SplitFlapDisplay text={course.lugar.toUpperCase()} className="text-foreground/80"/>
-                <div className="flex justify-end items-center">
-                  <SplitFlapDisplay text={course.movimiento.toUpperCase()} className="text-foreground/80" />
-                </div>
+                <span className="text-foreground">{course.courseName.toUpperCase()}</span>
+                <span className="text-foreground/80">{course.time}</span>
+                <span className="text-foreground/80">{(course.lugar || '').toUpperCase()}</span>
+                <span className="text-right text-foreground/80">{(course.movimiento || '').toUpperCase()}</span>
               </div>
             ))
           ) : (
