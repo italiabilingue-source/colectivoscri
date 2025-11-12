@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type PublicHeaderProps = {
+  title?: string;
   dayFilter: string;
   lugarFilter: string;
   colectivoFilter: string;
@@ -17,6 +18,7 @@ type PublicHeaderProps = {
 };
 
 export function PublicHeader({
+  title = "Horario de Colectivos",
   dayFilter,
   lugarFilter,
   colectivoFilter,
@@ -33,7 +35,7 @@ export function PublicHeader({
       <div className="flex items-center gap-3 self-start">
         <Flag className="w-8 h-8 text-primary" />
         <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight whitespace-nowrap">
-          Horario de Colectivos
+          {title}
         </h1>
       </div>
       <div className="flex flex-col md:flex-row items-center gap-2 w-full md:w-auto">
