@@ -293,7 +293,7 @@ export const MultipleSelector = React.forwardRef<HTMLButtonElement, MultipleSele
                                 setSelected(newOptions);
                                 onChange?.(newOptions);
                               }}
-                              className="cursor-pointer"
+                              className="cursor-pointer justify-start"
                             >
                               {option.label}
                             </CommandItem>

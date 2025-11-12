@@ -49,12 +49,13 @@ export function AddSecondaryCourseForm() {
 
   async function onSubmit(values: CourseFormValues) {
     setIsSubmitting(true);
+    const trimmedValues = { ...values, name: values.name.trim() };
     try {
-      const result = await addSecondaryCourse(values);
+      const result = await addSecondaryCourse(trimmedValues);
       if (result?.success) {
         toast({
           title: 'Éxito',
-          description: `Curso "${values.name}" creado correctamente.`,
+          description: `Curso "${trimmedValues.name}" creado correctamente.`,
         });
         setOpen(false);
         form.reset();
