@@ -19,6 +19,7 @@ export type Student = {
     name: string;
     va: boolean; // Asistencia a la ida
     vuelve: boolean; // Asistencia a la vuelta
+    order?: number; // Opcional para orden personalizado
     createdAt: Timestamp;
 };
 

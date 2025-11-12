@@ -21,6 +21,7 @@ export default function SecondaryAdminPage() {
         const unsubscribeCourses = onSnapshot(coursesQuery, async (coursesSnapshot) => {
             const coursesData = coursesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as SecondaryCourse));
             
+            // Ordenamos los alumnos por nombre
             const studentsQuery = query(collection(db, 'students'), orderBy('name', 'asc'));
             const unsubscribeStudents = onSnapshot(studentsQuery, (studentsSnapshot) => {
                 const studentsData = studentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student));

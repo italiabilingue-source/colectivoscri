@@ -5,9 +5,10 @@ import { useState } from 'react';
 import type { Student } from '@/types';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { updateStudentAttendance } from '@/app/actions';
+import { updateStudentAttendance, updateStudentName } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { useTransition } from 'react';
+import { EditableName } from './editable-name';
 
 type StudentAttendanceRowProps = {
   student: Student;
@@ -54,7 +55,12 @@ export function StudentAttendanceRow({ student }: StudentAttendanceRowProps) {
 
   return (
     <div className="grid grid-cols-[1fr_100px_100px] items-center p-3 border-b last:border-b-0 hover:bg-muted/50 transition-colors">
-      <span className="font-medium">{student.name}</span>
+      <EditableName
+        id={student.id}
+        initialName={student.name}
+        onUpdate={updateStudentName}
+        className="font-medium"
+      />
       
       <div className="flex justify-center items-center">
         <Switch

@@ -6,7 +6,8 @@ import {
   updateDoc,
   deleteDoc,
   doc,
-  serverTimestamp
+  serverTimestamp,
+  writeBatch,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { z } from 'zod';
@@ -140,6 +141,83 @@ export async function updateStudentAttendance(data: { studentId: string; field: 
     } catch (error) {
         console.error("Error al actualizar la asistencia: ", error);
         // Devolvemos un error para que el cliente pueda manejarlo si es necesario
+        return { success: false, error: (error as Error).message };
+    }
+}
+
+
+// Nuevas acciones para edición y carga masiva
+
+const NameUpdateSchema = z.object({
+    id: z.string(),
+    name: z.string().min(1, 'El nombre no puede estar vacío'),
+});
+
+export async function updateCourseName(data: { id: string, name: string }) {
+    const validatedFields = NameUpdateSchema.safeParse(data);
+    if (!validatedFields.success) {
+        throw new Error('Datos inválidos');
+    }
+    try {
+        const courseRef = doc(db, 'secondary_courses', data.id);
+        await updateDoc(courseRef, { name: data.name });
+        revalidatePath('/secundario/admin');
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: (error as Error).message };
+    }
+}
+
+export async function updateStudentName(data: { id: string, name: string }) {
+    const validatedFields = NameUpdateSchema.safeParse(data);
+    if (!validatedFields.success) {
+        throw new Error('Datos inválidos');
+    }
+    try {
+        const studentRef = doc(db, 'students', data.id);
+        await updateDoc(studentRef, { name: data.name });
+        revalidatePath('/secundario/admin');
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: (error as Error).message };
+    }
+}
+
+const CSVUploadSchema = z.object({
+    courseId: z.string(),
+    csvText: z.string().min(1, 'El texto CSV no puede estar vacío'),
+});
+
+export async function addStudentsFromCSV(data: { courseId: string, csvText: string }) {
+    const validatedFields = CSVUploadSchema.safeParse(data);
+    if (!validatedFields.success) {
+        throw new Error('Datos inválidos');
+    }
+
+    const { courseId, csvText } = validatedFields.data;
+    const studentNames = csvText.split('\n').map(name => name.trim()).filter(name => name);
+
+    if (studentNames.length === 0) {
+        return { success: false, error: "No se encontraron nombres de alumnos válidos en el texto." };
+    }
+
+    try {
+        const batch = writeBatch(db);
+        studentNames.forEach(name => {
+            const studentRef = doc(collection(db, 'students'));
+            batch.set(studentRef, {
+                name,
+                courseId,
+                va: false,
+                vuelve: false,
+                createdAt: serverTimestamp(),
+            });
+        });
+        await batch.commit();
+        revalidatePath('/secundario/admin');
+        return { success: true, count: studentNames.length };
+    } catch (error) {
+        console.error("Error al agregar alumnos desde CSV: ", error);
         return { success: false, error: (error as Error).message };
     }
 }
