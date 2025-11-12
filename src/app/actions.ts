@@ -8,6 +8,9 @@ import {
   doc,
   serverTimestamp,
   writeBatch,
+  query,
+  where,
+  getDocs,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { z } from 'zod';
@@ -93,12 +96,38 @@ export async function addSecondaryCourse(data: { name: string }) {
       createdAt: serverTimestamp(),
     });
     revalidatePath('/secundario/admin');
+    revalidatePath('/secundario');
     return { success: true };
   } catch (error) {
     console.error("Error al agregar el curso de secundaria: ", error);
     return { success: false, error: (error as Error).message };
   }
 }
+
+export async function deleteSecondaryCourse(courseId: string) {
+    try {
+        const batch = writeBatch(db);
+
+        // Delete the course itself
+        const courseRef = doc(db, 'secondary_courses', courseId);
+        batch.delete(courseRef);
+
+        // Delete all students in that course
+        const studentsQuery = query(collection(db, 'students'), where('courseId', '==', courseId));
+        const studentsSnapshot = await getDocs(studentsQuery);
+        studentsSnapshot.forEach(studentDoc => {
+            batch.delete(studentDoc.ref);
+        });
+
+        await batch.commit();
+        revalidatePath('/secundario/admin');
+        revalidatePath('/secundario');
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: (error as Error).message };
+    }
+}
+
 
 const StudentSchema = z.object({
     name: z.string().min(1, 'El nombre del alumno es requerido'),
@@ -119,6 +148,7 @@ export async function addStudentToCourse(data: { name: string, courseId: string 
             createdAt: serverTimestamp(),
         });
         revalidatePath(`/secundario/admin`);
+        revalidatePath(`/secundario`);
         return { success: true };
     } catch (error) {
         console.error("Error al agregar el alumno: ", error);
@@ -126,6 +156,16 @@ export async function addStudentToCourse(data: { name: string, courseId: string 
     }
 }
 
+export async function deleteStudent(studentId: string) {
+    try {
+        await deleteDoc(doc(db, 'students', studentId));
+        revalidatePath('/secundario/admin');
+        revalidatePath('/secundario');
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: (error as Error).message };
+    }
+}
 
 const AttendanceUpdateSchema = z.object({
     studentId: z.string(),
@@ -144,7 +184,7 @@ export async function updateStudentAttendance(data: { studentId: string; field: 
     try {
         const studentRef = doc(db, 'students', studentId);
         await updateDoc(studentRef, { [field]: value });
-        revalidatePath(`/secundario/admin`); 
+        revalidatePath(`/secundario`); 
         // No retornamos nada para una respuesta más rápida, el cambio se verá por UI
     } catch (error) {
         console.error("Error al actualizar la asistencia: ", error);
@@ -170,6 +210,7 @@ export async function updateCourseName(data: { id: string, name: string }) {
         const courseRef = doc(db, 'secondary_courses', data.id);
         await updateDoc(courseRef, { name: data.name });
         revalidatePath('/secundario/admin');
+        revalidatePath('/secundario');
         return { success: true };
     } catch (error) {
         return { success: false, error: (error as Error).message };
@@ -185,6 +226,7 @@ export async function updateStudentName(data: { id: string, name: string }) {
         const studentRef = doc(db, 'students', data.id);
         await updateDoc(studentRef, { name: data.name });
         revalidatePath('/secundario/admin');
+        revalidatePath('/secundario');
         return { success: true };
     } catch (error) {
         return { success: false, error: (error as Error).message };
@@ -223,6 +265,7 @@ export async function addStudentsFromCSV(data: { courseId: string, csvText: stri
         });
         await batch.commit();
         revalidatePath('/secundario/admin');
+        revalidatePath('/secundario');
         return { success: true, count: studentNames.length };
     } catch (error) {
         console.error("Error al agregar alumnos desde CSV: ", error);

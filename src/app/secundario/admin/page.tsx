@@ -2,14 +2,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, query, orderBy, where } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { SecondaryCourse, Student } from '@/types';
-import { Loader2, Flag, Users } from 'lucide-react';
+import { Loader2, Users } from 'lucide-react';
 import { AddSecondaryCourseForm } from '@/components/secundario/add-secondary-course-form';
-import { SecondaryCourseAdmin } from '@/components/secundario/secondary-course-admin';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { SecondaryCourseAdmin } from '@/components/secundario/secondary-course-admin';
 
 export default function SecondaryAdminPage() {
     const [courses, setCourses] = useState<SecondaryCourse[]>([]);
@@ -21,7 +21,6 @@ export default function SecondaryAdminPage() {
         const unsubscribeCourses = onSnapshot(coursesQuery, async (coursesSnapshot) => {
             const coursesData = coursesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as SecondaryCourse));
             
-            // Ordenamos los alumnos por nombre
             const studentsQuery = query(collection(db, 'students'), orderBy('name', 'asc'));
             const unsubscribeStudents = onSnapshot(studentsQuery, (studentsSnapshot) => {
                 const studentsData = studentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student));
@@ -49,12 +48,15 @@ export default function SecondaryAdminPage() {
             <header className="flex items-center justify-between p-4 border-b">
                 <div className="flex items-center gap-3">
                     <Users className="w-8 h-8 text-primary" />
-                    <h1 className="text-2xl font-bold">Gestión de Asistencia - Secundaria</h1>
+                    <h1 className="text-2xl font-bold">Gestión de Cursos y Alumnos (Secundaria)</h1>
                 </div>
                 <div className='flex items-center gap-2'>
                     <AddSecondaryCourseForm />
                      <Button variant="outline" asChild>
                         <Link href="/dashboard">Volver al Dashboard</Link>
+                    </Button>
+                    <Button asChild>
+                        <Link href="/secundario">Ir a Asistencia</Link>
                     </Button>
                 </div>
             </header>
@@ -72,7 +74,7 @@ export default function SecondaryAdminPage() {
                         ) : (
                             <div className="text-center py-12 text-muted-foreground">
                                 <p>No hay cursos de secundaria creados.</p>
-                                <p>Crea el primer curso para empezar a añadir alumnos y gestionar la asistencia.</p>
+                                <p>Crea el primer curso para empezar a añadir alumnos.</p>
                             </div>
                         )}
                     </div>
