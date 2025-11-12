@@ -50,12 +50,16 @@ export function CourseRow({ course }: { course: Course }) {
     }
   };
 
+  const courseNameDisplay = Array.isArray(course.courseName)
+    ? course.courseName.join(', ')
+    : course.courseName;
+
   return (
     <>
       <ContextMenu>
         <ContextMenuTrigger asChild>
           <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b border-border/50 py-4 px-2 text-sm md:text-base font-normal tracking-wider cursor-pointer hover:bg-muted/50 rounded-md">
-            <span className="text-foreground">{course.courseName}</span>
+            <span className="text-foreground truncate">{courseNameDisplay}</span>
             <span className="text-foreground/80">{course.time}</span>
             <span className="text-foreground/80">{course.lugar}</span>
             <span

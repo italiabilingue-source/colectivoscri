@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { addOrUpdateCourse } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
-import type { Course } from '@/types';
+import type { Course, SecondaryCourse } from '@/types';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -35,11 +37,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Plus, Loader2 } from 'lucide-react';
+import { MultipleSelector, Option } from '@/components/ui/multiple-selector';
 
 const formSchema = z.object({
   id: z.string().optional(),
   level: z.enum(['Jardín', 'Primaria', 'Secundaria']),
-  courseName: z.string().min(1, 'El curso/grado es requerido'),
+  courseName: z.union([
+    z.string().min(1, 'El curso/grado es requerido'),
+    z.array(z.string()).min(1, 'Debe seleccionar al menos un curso'),
+  ]),
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Formato de hora inválido. Use HH:mm'),
   day: z.enum(['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']),
   lugar: z.enum(['Chacra', 'Escuela']),
@@ -59,6 +65,7 @@ type CourseFormProps = {
 export function CourseForm({ course, children, open: controlledOpen, onOpenChange }: CourseFormProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [secondaryCourses, setSecondaryCourses] = useState<Option[]>([]);
   const { toast } = useToast();
 
   const isControlled = controlledOpen !== undefined;
@@ -71,35 +78,48 @@ export function CourseForm({ course, children, open: controlledOpen, onOpenChang
         setInternalOpen(newOpen);
     }
   };
+  
+  const defaultValues: CourseFormValues = {
+    level: 'Primaria',
+    courseName: '',
+    time: '',
+    day: 'Lunes',
+    lugar: 'Escuela',
+    colectivo: 'Cachi',
+    movimiento: 'Llegada',
+  };
 
   const form = useForm<CourseFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: course ? {
-        ...course
-    } : {
-      level: 'Primaria',
-      courseName: '',
-      time: '',
-      day: 'Lunes',
-      lugar: 'Escuela',
-      colectivo: 'Cachi',
-      movimiento: 'Llegada',
-    },
+        ...course,
+        courseName: course.courseName,
+    } : defaultValues,
   });
+
+  const level = form.watch('level');
+
+  useEffect(() => {
+    // Fetch secondary courses for the multi-selector
+    const q = query(collection(db, 'secondary_courses'), orderBy('name', 'asc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const coursesData = snapshot.docs.map(doc => ({
+        label: doc.data().name,
+        value: doc.data().name,
+      }));
+      setSecondaryCourses(coursesData);
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (course) {
-        form.reset(course);
-    } else {
         form.reset({
-            level: 'Primaria',
-            courseName: '',
-            time: '',
-            day: 'Lunes',
-            lugar: 'Escuela',
-            colectivo: 'Cachi',
-            movimiento: 'Llegada',
+            ...course,
+            courseName: course.courseName,
         });
+    } else {
+        form.reset(defaultValues);
     }
   }, [course, form]);
 
@@ -115,7 +135,7 @@ export function CourseForm({ course, children, open: controlledOpen, onOpenChang
         });
         handleOpenChange(false);
         if (!course) {
-            form.reset();
+            form.reset(defaultValues);
         }
       } else {
         throw new Error(result?.error || 'Ocurrió un error desconocido.');
@@ -130,7 +150,7 @@ export function CourseForm({ course, children, open: controlledOpen, onOpenChang
       setIsSubmitting(false);
     }
   }
-
+  
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
@@ -171,17 +191,46 @@ export function CourseForm({ course, children, open: controlledOpen, onOpenChang
                     </FormItem>
                   )}
                 />
-                 <FormField
-                    control={form.control}
-                    name="courseName"
-                    render={({ field }) => (
+                 {level === 'Secundaria' ? (
+                   <FormField
+                      control={form.control}
+                      name="courseName"
+                      render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Curso/Grado</FormLabel>
-                        <FormControl><Input placeholder="Ej: 1A, Sala de 5..." {...field} /></FormControl>
-                        <FormMessage />
+                          <FormLabel>Cursos</FormLabel>
+                            <MultipleSelector
+                              value={
+                                Array.isArray(field.value)
+                                  ? field.value.map(v => ({ label: v, value: v }))
+                                  : []
+                              }
+                              onChange={(options) => field.onChange(options.map(o => o.value))}
+                              defaultOptions={secondaryCourses}
+                              options={secondaryCourses}
+                              placeholder="Seleccione los cursos..."
+                              emptyIndicator={
+                                <p className="text-center text-sm leading-10 text-gray-600 dark:text-gray-400">
+                                  No se encontraron cursos.
+                                </p>
+                              }
+                            />
+                          <FormMessage />
                         </FormItem>
-                    )}
-                />
+                      )}
+                    />
+                 ) : (
+                    <FormField
+                      control={form.control}
+                      name="courseName"
+                      render={({ field }) => (
+                          <FormItem>
+                          <FormLabel>Curso/Grado</FormLabel>
+                          <FormControl><Input placeholder="Ej: 1A, Sala de 5..." {...field} value={Array.isArray(field.value) ? '' : field.value} /></FormControl>
+                          <FormMessage />
+                          </FormItem>
+                      )}
+                  />
+                 )}
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <FormField

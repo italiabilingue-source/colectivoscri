@@ -17,7 +17,11 @@ import type { Course } from '@/types';
 const CourseSchema = z.object({
   id: z.string().optional(),
   level: z.enum(['Jardín', 'Primaria', 'Secundaria']),
-  courseName: z.string().min(1, 'El curso/grado es requerido'),
+  // courseName can be a string for Jardín/Primaria or an array for Secundaria
+  courseName: z.union([
+    z.string().min(1, 'El curso/grado es requerido'),
+    z.array(z.string()).min(1, 'Debe seleccionar al menos un curso'),
+  ]),
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Formato de hora inválido. Use HH:mm'),
   day: z.enum(['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']),
   lugar: z.enum(['Chacra', 'Escuela']),
@@ -25,9 +29,11 @@ const CourseSchema = z.object({
   movimiento: z.enum(['Llegada', 'Salida']),
 });
 
-export async function addOrUpdateCourse(data: Omit<Course, 'id' | 'createdAt'> & { id?: string }) {
+export async function addOrUpdateCourse(data: Omit<Course, 'id' | 'createdAt' | 'courseName'> & { id?: string, courseName: string | string[] }) {
     const validatedFields = CourseSchema.safeParse(data);
     if (!validatedFields.success) {
+        // Para depuración
+        console.error(validatedFields.error.flatten().fieldErrors);
         throw new Error('Datos inválidos');
     }
 
@@ -45,6 +51,7 @@ export async function addOrUpdateCourse(data: Omit<Course, 'id' | 'createdAt'> &
         }
         revalidatePath('/');
         revalidatePath('/dashboard');
+        revalidatePath('/secundario');
         revalidatePath('/secundario/admin');
         return { success: true };
     } catch (error) {
@@ -59,6 +66,7 @@ export async function deleteCourse(id: string) {
         await deleteDoc(doc(db, 'courses', id));
         revalidatePath('/');
         revalidatePath('/dashboard');
+        revalidatePath('/secundario');
         return { success: true };
     } catch (error)
         {
