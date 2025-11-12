@@ -3,6 +3,7 @@
 import { Flag, FilterX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 
 type PublicHeaderProps = {
   title?: string;
@@ -15,6 +16,7 @@ type PublicHeaderProps = {
   onColectivoChange: (value: string) => void;
   onMovimientoChange: (value: string) => void;
   onClearFilters: () => void;
+  hideLugarMovimiento?: boolean;
 };
 
 export function PublicHeader({
@@ -27,7 +29,8 @@ export function PublicHeader({
   onLugarChange,
   onColectivoChange,
   onMovimientoChange,
-  onClearFilters
+  onClearFilters,
+  hideLugarMovimiento = false,
 }: PublicHeaderProps) {
 
   return (
@@ -53,17 +56,6 @@ export function PublicHeader({
               </SelectContent>
             </Select>
 
-            <Select value={lugarFilter} onValueChange={onLugarChange}>
-              <SelectTrigger className="w-full sm:w-auto flex-1">
-                <SelectValue placeholder="Lugar" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Todos">Todos Lugares</SelectItem>
-                <SelectItem value="Chacra">Chacra</SelectItem>
-                <SelectItem value="Escuela">Escuela</SelectItem>
-              </SelectContent>
-            </Select>
-            
             <Select value={colectivoFilter} onValueChange={onColectivoChange}>
               <SelectTrigger className="w-full sm:w-auto flex-1">
                 <SelectValue placeholder="Colectivo" />
@@ -75,16 +67,32 @@ export function PublicHeader({
               </SelectContent>
             </Select>
 
-            <Select value={movimientoFilter} onValueChange={onMovimientoChange}>
-              <SelectTrigger className="w-full sm:w-auto flex-1">
-                <SelectValue placeholder="Movimiento" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Todos">Todos Movimientos</SelectItem>
-                <SelectItem value="Llegada">Llegada</SelectItem>
-                <SelectItem value="Salida">Salida</SelectItem>
-              </SelectContent>_
-            </Select>
+            <div className={cn({ 'hidden': hideLugarMovimiento })}>
+              <Select value={lugarFilter} onValueChange={onLugarChange}>
+                <SelectTrigger className="w-full sm:w-auto flex-1">
+                  <SelectValue placeholder="Lugar" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Todos">Todos Lugares</SelectItem>
+                  <SelectItem value="Chacra">Chacra</SelectItem>
+                  <SelectItem value="Escuela">Escuela</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className={cn({ 'hidden': hideLugarMovimiento })}>
+              <Select value={movimientoFilter} onValueChange={onMovimientoChange}>
+                <SelectTrigger className="w-full sm:w-auto flex-1">
+                  <SelectValue placeholder="Movimiento" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Todos">Todos Movimientos</SelectItem>
+                  <SelectItem value="Llegada">Llegada</SelectItem>
+                  <SelectItem value="Salida">Salida</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
              <Button variant="ghost" onClick={onClearFilters} className="px-3">
                 <FilterX className="h-5 w-5" />
                 <span className="sr-only">Limpiar filtros</span>

@@ -1,53 +1,52 @@
-// src/components/secundario/student-attendance-row.tsx
 'use client';
 
-import { useState } from 'react';
 import type { Student } from '@/types';
 import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { updateStudentAttendance, updateStudentName } from '@/app/actions';
+import { toggleStudentAttendance, updateStudentName } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { useTransition } from 'react';
 import { EditableName } from './editable-name';
 
 type StudentAttendanceRowProps = {
   student: Student;
+  tripId: string;
+  currentDate: string; // YYYY-MM-DD
+  attendance: { va: boolean; vuelve: boolean };
 };
 
-export function StudentAttendanceRow({ student }: StudentAttendanceRowProps) {
+export function StudentAttendanceRow({
+  student,
+  tripId,
+  currentDate,
+  attendance,
+}: StudentAttendanceRowProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
-  // Optimistic UI states
-  const [va, setVa] = useState(student.va);
-  const [vuelve, setVuelve] = useState(student.vuelve);
-
-  const handleAttendanceChange = (field: 'va' | 'vuelve', value: boolean) => {
-    // Optimistic update
-    if (field === 'va') setVa(value);
-    if (field === 'vuelve') setVuelve(value);
-
+  const handleAttendanceChange = (status: 'va' | 'vuelve', present: boolean) => {
     startTransition(async () => {
       try {
-        const result = await updateStudentAttendance({ studentId: student.id, field, value });
+        const result = await toggleStudentAttendance({
+          studentId: student.id,
+          courseId: student.courseId,
+          tripId,
+          date: currentDate,
+          status,
+          present,
+        });
+
         if (result?.success === false) {
-           // Revert optimistic update on error
-            if (field === 'va') setVa(!value);
-            if (field === 'vuelve') setVuelve(!value);
-            toast({
-                title: 'Error',
-                description: result.error || 'No se pudo actualizar la asistencia.',
-                variant: 'destructive',
-            });
+          toast({
+            title: 'Error',
+            description: result.error || 'No se pudo actualizar la asistencia.',
+            variant: 'destructive',
+          });
         }
       } catch (e) {
-         // Revert optimistic update on error
-        if (field === 'va') setVa(!value);
-        if (field === 'vuelve') setVuelve(!value);
         toast({
-            title: 'Error',
-            description: 'Ocurrió un error de conexión.',
-            variant: 'destructive',
+          title: 'Error',
+          description: 'Ocurrió un error de conexión.',
+          variant: 'destructive',
         });
       }
     });
@@ -61,11 +60,11 @@ export function StudentAttendanceRow({ student }: StudentAttendanceRowProps) {
         onUpdate={updateStudentName}
         className="font-medium"
       />
-      
+
       <div className="flex justify-center items-center">
         <Switch
-          id={`va-${student.id}`}
-          checked={va}
+          id={`va-${tripId}-${student.id}`}
+          checked={attendance.va}
           onCheckedChange={(value) => handleAttendanceChange('va', value)}
           disabled={isPending}
           aria-label={`Asistencia de ida para ${student.name}`}
@@ -74,8 +73,8 @@ export function StudentAttendanceRow({ student }: StudentAttendanceRowProps) {
 
       <div className="flex justify-center items-center">
         <Switch
-          id={`vuelve-${student.id}`}
-          checked={vuelve}
+          id={`vuelve-${tripId}-${student.id}`}
+          checked={attendance.vuelve}
           onCheckedChange={(value) => handleAttendanceChange('vuelve', value)}
           disabled={isPending}
           aria-label={`Asistencia de vuelta para ${student.name}`}

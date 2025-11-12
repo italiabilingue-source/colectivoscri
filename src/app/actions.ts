@@ -11,6 +11,8 @@ import {
   query,
   where,
   getDocs,
+  getDoc,
+  deleteField,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { z } from 'zod';
@@ -20,7 +22,6 @@ import type { Course } from '@/types';
 const CourseSchema = z.object({
   id: z.string().optional(),
   level: z.enum(['Jardín', 'Primaria', 'Secundaria']),
-  // courseName can be a string for Jardín/Primaria or an array for Secundaria
   courseName: z.union([
     z.string().min(1, 'El curso/grado es requerido'),
     z.array(z.string()).min(1, 'Debe seleccionar al menos un curso'),
@@ -35,7 +36,6 @@ const CourseSchema = z.object({
 export async function addOrUpdateCourse(data: Omit<Course, 'id' | 'createdAt' | 'courseName'> & { id?: string, courseName: string | string[] }) {
     const validatedFields = CourseSchema.safeParse(data);
     if (!validatedFields.success) {
-        // Para depuración
         console.error(validatedFields.error.flatten().fieldErrors);
         throw new Error('Datos inválidos');
     }
@@ -78,8 +78,6 @@ export async function deleteCourse(id: string) {
     }
 }
 
-// Acciones para la gestión de asistencia de secundaria
-
 const SecondaryCourseSchema = z.object({
   name: z.string().min(1, 'El nombre del curso es requerido'),
 });
@@ -108,11 +106,9 @@ export async function deleteSecondaryCourse(courseId: string) {
     try {
         const batch = writeBatch(db);
 
-        // Delete the course itself
         const courseRef = doc(db, 'secondary_courses', courseId);
         batch.delete(courseRef);
 
-        // Delete all students in that course
         const studentsQuery = query(collection(db, 'students'), where('courseId', '==', courseId));
         const studentsSnapshot = await getDocs(studentsQuery);
         studentsSnapshot.forEach(studentDoc => {
@@ -143,8 +139,6 @@ export async function addStudentToCourse(data: { name: string, courseId: string 
     try {
         await addDoc(collection(db, 'students'), {
             ...validatedFields.data,
-            va: false,
-            vuelve: false,
             createdAt: serverTimestamp(),
         });
         revalidatePath(`/secundario/admin`);
@@ -167,34 +161,63 @@ export async function deleteStudent(studentId: string) {
     }
 }
 
-const AttendanceUpdateSchema = z.object({
+// Nueva acción para registrar asistencia contextual
+const AttendanceToggleSchema = z.object({
     studentId: z.string(),
-    field: z.enum(['va', 'vuelve']),
-    value: z.boolean(),
+    courseId: z.string(),
+    tripId: z.string(),
+    date: z.string(), // YYYY-MM-DD
+    status: z.enum(['va', 'vuelve']),
+    present: z.boolean(),
 });
 
-export async function updateStudentAttendance(data: { studentId: string; field: 'va' | 'vuelve'; value: boolean }) {
-    const validatedFields = AttendanceUpdateSchema.safeParse(data);
+export async function toggleStudentAttendance(data: z.infer<typeof AttendanceToggleSchema>) {
+    const validatedFields = AttendanceToggleSchema.safeParse(data);
     if (!validatedFields.success) {
+        console.error(validatedFields.error.flatten().fieldErrors);
         throw new Error('Datos de asistencia inválidos');
     }
     
-    const { studentId, field, value } = validatedFields.data;
+    const { studentId, courseId, tripId, date, status, present } = validatedFields.data;
+    
+    // El ID del documento de asistencia será una combinación única para evitar duplicados
+    const attendanceDocId = `${date}_${tripId}_${studentId}_${status}`;
+    const attendanceRef = doc(db, 'attendance', attendanceDocId);
 
     try {
-        const studentRef = doc(db, 'students', studentId);
-        await updateDoc(studentRef, { [field]: value });
+        if (present) {
+            // Si el alumno está presente, creamos o actualizamos el registro
+            await addDoc(collection(db, "attendance"), {
+                studentId,
+                courseId,
+                tripId,
+                date,
+                status,
+                createdAt: serverTimestamp(),
+            });
+        } else {
+            // Si no está presente, eliminamos el registro
+            const q = query(
+              collection(db, 'attendance'),
+              where('studentId', '==', studentId),
+              where('tripId', '==', tripId),
+              where('date', '==', date),
+              where('status', '==', status)
+            );
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) {
+                const docToDelete = querySnapshot.docs[0];
+                await deleteDoc(docToDelete.ref);
+            }
+        }
         revalidatePath(`/secundario`); 
-        // No retornamos nada para una respuesta más rápida, el cambio se verá por UI
+        return { success: true };
     } catch (error) {
         console.error("Error al actualizar la asistencia: ", error);
-        // Devolvemos un error para que el cliente pueda manejarlo si es necesario
         return { success: false, error: (error as Error).message };
     }
 }
 
-
-// Nuevas acciones para edición y carga masiva
 
 const NameUpdateSchema = z.object({
     id: z.string(),
@@ -258,8 +281,6 @@ export async function addStudentsFromCSV(data: { courseId: string, csvText: stri
             batch.set(studentRef, {
                 name,
                 courseId,
-                va: false,
-                vuelve: false,
                 createdAt: serverTimestamp(),
             });
         });

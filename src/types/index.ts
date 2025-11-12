@@ -3,7 +3,7 @@ import type { Timestamp } from 'firebase/firestore';
 export type Course = {
   id: string;
   level: 'Jardín' | 'Primaria' | 'Secundaria';
-  courseName: string | string[]; // Can be a single string or an array of strings
+  courseName: string | string[];
   time: string; // HH:mm format
   day: 'Lunes' | 'Martes' | 'Miércoles' | 'Jueves' | 'Viernes';
   lugar: 'Chacra' | 'Escuela';
@@ -12,14 +12,11 @@ export type Course = {
   createdAt: Timestamp;
 };
 
-// Nuevos tipos para la gestión de asistencia de secundaria
 export type Student = {
     id: string;
     courseId: string;
     name: string;
-    va: boolean; // Asistencia a la ida
-    vuelve: boolean; // Asistencia a la vuelta
-    order?: number; // Opcional para orden personalizado
+    order?: number;
     createdAt: Timestamp;
 };
 
@@ -28,4 +25,14 @@ export type SecondaryCourse = {
     name: string;
     createdAt: Timestamp;
     students?: Student[];
+};
+
+export type AttendanceRecord = {
+    id: string;
+    studentId: string;
+    courseId: string;
+    tripId: string; // Corresponds to a Course document ID
+    date: string; // YYYY-MM-DD
+    status: 'va' | 'vuelve';
+    createdAt: Timestamp;
 };
