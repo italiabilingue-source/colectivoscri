@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Eye, Flag, FilterX } from 'lucide-react';
+import { Eye, Flag, FilterX, Users } from 'lucide-react';
 import { CourseForm } from './course-form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -92,6 +92,12 @@ export function DashboardHeader({
         </div>
         <div className="flex items-center gap-2 w-full md:w-auto mt-2 md:mt-0">
           <CourseForm />
+          <Button variant="outline" asChild className="w-full md:w-auto">
+            <Link href="/secundario/admin">
+              <Users className="mr-2 h-4 w-4" />
+              Gestionar Secundaria
+            </Link>
+          </Button>
           <Button variant="outline" asChild className="w-full md:w-auto">
             <Link href="/">
               <Eye className="mr-2 h-4 w-4" />
