@@ -187,8 +187,8 @@ export async function toggleStudentAttendance(data: z.infer<typeof AttendanceTog
 
     try {
         if (present) {
-            // Si el alumno está presente, creamos o actualizamos el registro
-            // Usamos setDoc con merge para no sobreescribir el otro estado (va/vuelve)
+            // Si el alumno está presente, creamos o actualizamos el registro.
+            // Usamos setDoc con merge para no sobreescribir el otro estado (va/vuelve).
             await setDoc(attendanceRef, {
                 [status]: true,
                 studentId,
@@ -198,27 +198,14 @@ export async function toggleStudentAttendance(data: z.infer<typeof AttendanceTog
                 updatedAt: serverTimestamp(),
             }, { merge: true });
 
-            const docSnap = await getDoc(attendanceRef);
-            if (!docSnap.exists()) {
-                await setDoc(attendanceRef, { createdAt: serverTimestamp() }, { merge: true });
-            }
-
         } else {
-            // Si no está presente, actualizamos el campo correspondiente o eliminamos el documento
+            // Si no está presente, solo actualizamos el campo correspondiente a `false` o lo eliminamos.
+            // Usando `updateDoc` con `deleteField` nos aseguramos de no tocar el otro estado.
             const docSnap = await getDoc(attendanceRef);
             if (docSnap.exists()) {
-                const currentData = docSnap.data();
-                const otherStatus = status === 'va' ? 'vuelve' : 'va';
-                
-                if (currentData[otherStatus]) {
-                    // Si el otro estado (va o vuelve) es true, solo eliminamos el campo actual
-                     await updateDoc(attendanceRef, {
-                        [status]: deleteField()
-                    });
-                } else {
-                    // Si ambos estados son false, eliminamos el documento completo
-                    await deleteDoc(attendanceRef);
-                }
+                 await updateDoc(attendanceRef, {
+                    [status]: deleteField()
+                });
             }
         }
         revalidatePath(`/secundario`); 
