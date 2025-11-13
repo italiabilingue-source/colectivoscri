@@ -13,6 +13,7 @@ import {
   getDocs,
   getDoc,
   deleteField,
+  setDoc,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { z } from 'zod';
@@ -185,38 +186,37 @@ export async function toggleStudentAttendance(data: z.infer<typeof AttendanceTog
     const attendanceRef = doc(db, 'attendance', attendanceDocId);
 
     try {
-        const docSnap = await getDoc(attendanceRef);
         if (present) {
             // Si el alumno está presente, creamos o actualizamos el registro
-             if (docSnap.exists()) {
-                await updateDoc(attendanceRef, {
-                    [status]: true,
-                    studentId,
-                    courseId,
-                    tripId,
-                    date,
-                    updatedAt: serverTimestamp(),
-                });
-            } else {
-                await addDoc(collection(db, "attendance"), {
-                    studentId,
-                    courseId,
-                    tripId,
-                    date,
-                    [status]: true,
-                    createdAt: serverTimestamp(),
-                });
+            // Usamos setDoc con merge para no sobreescribir el otro estado (va/vuelve)
+            await setDoc(attendanceRef, {
+                [status]: true,
+                studentId,
+                courseId,
+                tripId,
+                date,
+                updatedAt: serverTimestamp(),
+            }, { merge: true });
+
+            const docSnap = await getDoc(attendanceRef);
+            if (!docSnap.exists()) {
+                await setDoc(attendanceRef, { createdAt: serverTimestamp() }, { merge: true });
             }
+
         } else {
-            // Si no está presente, actualizamos el campo a false o eliminamos el documento si ambos son false
+            // Si no está presente, actualizamos el campo correspondiente o eliminamos el documento
+            const docSnap = await getDoc(attendanceRef);
             if (docSnap.exists()) {
                 const currentData = docSnap.data();
                 const otherStatus = status === 'va' ? 'vuelve' : 'va';
+                
                 if (currentData[otherStatus]) {
+                    // Si el otro estado (va o vuelve) es true, solo eliminamos el campo actual
                      await updateDoc(attendanceRef, {
                         [status]: deleteField()
                     });
                 } else {
+                    // Si ambos estados son false, eliminamos el documento completo
                     await deleteDoc(attendanceRef);
                 }
             }
