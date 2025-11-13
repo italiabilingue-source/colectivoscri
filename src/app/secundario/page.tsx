@@ -62,19 +62,21 @@ export default function SecondaryAttendancePage() {
       collection(db, 'courses'),
       where('level', '==', 'Secundaria'),
       where('day', '==', dayFilter),
-      ...(colectivoFilter !== 'Todos'
-        ? [where('colectivo', '==', colectivoFilter)]
-        : []),
       orderBy('time', 'asc')
     );
 
     const unsubscribeTrips = onSnapshot(tripsQuery, (snapshot) => {
-      const tripsData = snapshot.docs.map(
+      let tripsData = snapshot.docs.map(
         (doc) => ({ id: doc.id, ...doc.data() } as Course)
       );
+      if (colectivoFilter !== 'Todos') {
+        tripsData = tripsData.filter(trip => trip.colectivo === colectivoFilter);
+      }
       setTrips(tripsData);
+      setLoading(false);
     }, (error) => {
       console.error("Error fetching trips: ", error);
+      setLoading(false);
     });
 
     return () => unsubscribeTrips();
@@ -98,7 +100,7 @@ export default function SecondaryAttendancePage() {
 
     const attendanceQuery = query(collection(db, 'attendance'), where('date', '==', currentDate));
     const unsubscribeAttendance = onSnapshot(attendanceQuery, (snapshot) => {
-        setAttendance(snapshot.docs.map(doc => doc.data() as AttendanceRecord));
+        setAttendance(snapshot.docs.map(doc => ({id: doc.id, ...doc.data()} as AttendanceRecord)));
         setLoading(false);
     });
     
@@ -122,21 +124,12 @@ export default function SecondaryAttendancePage() {
   };
 
   const getFilteredAttendance = (tripId: string, studentId: string) => {
-    const vaRecord = attendance.find(
-      (att) =>
-        att.tripId === tripId &&
-        att.studentId === studentId &&
-        att.status === 'va'
-    );
-    const vuelveRecord = attendance.find(
-      (att) =>
-        att.tripId === tripId &&
-        att.studentId === studentId &&
-        att.status === 'vuelve'
+    const record = attendance.find(
+      (att) => att.tripId === tripId && att.studentId === studentId
     );
     return {
-      va: !!vaRecord,
-      vuelve: !!vuelveRecord,
+      va: !!record?.va,
+      vuelve: !!record?.vuelve,
     };
   };
 

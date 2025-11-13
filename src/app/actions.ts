@@ -181,33 +181,44 @@ export async function toggleStudentAttendance(data: z.infer<typeof AttendanceTog
     const { studentId, courseId, tripId, date, status, present } = validatedFields.data;
     
     // El ID del documento de asistencia será una combinación única para evitar duplicados
-    const attendanceDocId = `${date}_${tripId}_${studentId}_${status}`;
+    const attendanceDocId = `${date}_${tripId}_${studentId}`;
     const attendanceRef = doc(db, 'attendance', attendanceDocId);
 
     try {
+        const docSnap = await getDoc(attendanceRef);
         if (present) {
             // Si el alumno está presente, creamos o actualizamos el registro
-            await addDoc(collection(db, "attendance"), {
-                studentId,
-                courseId,
-                tripId,
-                date,
-                status,
-                createdAt: serverTimestamp(),
-            });
+             if (docSnap.exists()) {
+                await updateDoc(attendanceRef, {
+                    [status]: true,
+                    studentId,
+                    courseId,
+                    tripId,
+                    date,
+                    updatedAt: serverTimestamp(),
+                });
+            } else {
+                await addDoc(collection(db, "attendance"), {
+                    studentId,
+                    courseId,
+                    tripId,
+                    date,
+                    [status]: true,
+                    createdAt: serverTimestamp(),
+                });
+            }
         } else {
-            // Si no está presente, eliminamos el registro
-            const q = query(
-              collection(db, 'attendance'),
-              where('studentId', '==', studentId),
-              where('tripId', '==', tripId),
-              where('date', '==', date),
-              where('status', '==', status)
-            );
-            const querySnapshot = await getDocs(q);
-            if (!querySnapshot.empty) {
-                const docToDelete = querySnapshot.docs[0];
-                await deleteDoc(docToDelete.ref);
+            // Si no está presente, actualizamos el campo a false o eliminamos el documento si ambos son false
+            if (docSnap.exists()) {
+                const currentData = docSnap.data();
+                const otherStatus = status === 'va' ? 'vuelve' : 'va';
+                if (currentData[otherStatus]) {
+                     await updateDoc(attendanceRef, {
+                        [status]: deleteField()
+                    });
+                } else {
+                    await deleteDoc(attendanceRef);
+                }
             }
         }
         revalidatePath(`/secundario`); 

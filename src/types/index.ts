@@ -33,6 +33,8 @@ export type AttendanceRecord = {
     courseId: string;
     tripId: string; // Corresponds to a Course document ID
     date: string; // YYYY-MM-DD
-    status: 'va' | 'vuelve';
+    va?: boolean;
+    vuelve?: boolean;
     createdAt: Timestamp;
+    updatedAt?: Timestamp;
 };
