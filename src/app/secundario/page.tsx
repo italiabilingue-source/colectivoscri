@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -7,6 +8,7 @@ import {
   query,
   where,
   orderBy,
+  getDocs,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type {
@@ -65,14 +67,16 @@ export default function SecondaryAttendancePage() {
       orderBy('time', 'asc')
     );
 
-    const unsubscribeTrips = onSnapshot(tripsQuery, (snapshot) => {
-      let tripsData = snapshot.docs.map(
+    const unsubscribeTrips = onSnapshot(tripsQuery, async (snapshot) => {
+      const tripsData = snapshot.docs.map(
         (doc) => ({ id: doc.id, ...doc.data() } as Course)
       );
-      if (colectivoFilter !== 'Todos') {
-        tripsData = tripsData.filter(trip => trip.colectivo === colectivoFilter);
-      }
-      setTrips(tripsData);
+
+      const filteredByColectivo = tripsData.filter(trip => 
+        colectivoFilter === 'Todos' || trip.colectivo === colectivoFilter
+      );
+      
+      setTrips(filteredByColectivo);
       setLoading(false);
     }, (error) => {
       console.error("Error fetching trips: ", error);
@@ -97,10 +101,11 @@ export default function SecondaryAttendancePage() {
     const unsubscribeStudents = onSnapshot(studentsQuery, (snapshot) => {
         setStudents(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student)));
     });
-
+    
+    // Query for all attendance records for the current date, regardless of trip
     const attendanceQuery = query(collection(db, 'attendance'), where('date', '==', currentDate));
     const unsubscribeAttendance = onSnapshot(attendanceQuery, (snapshot) => {
-        setAttendance(snapshot.docs.map(doc => ({id: doc.id, ...doc.data()} as AttendanceRecord)));
+        setAttendance(snapshot.docs.map(doc => ({...doc.data(), id: doc.id } as AttendanceRecord)));
         setLoading(false);
     });
     
@@ -134,7 +139,9 @@ export default function SecondaryAttendancePage() {
   };
 
   const relevantCourseNames = useMemo(() => {
-    return new Set(trips.flatMap(trip => trip.courseName));
+    return new Set(trips.flatMap(trip => 
+      Array.isArray(trip.courseName) ? trip.courseName : [trip.courseName]
+    ));
   }, [trips]);
 
   const coursesToShow = useMemo(() => {
@@ -188,12 +195,12 @@ export default function SecondaryAttendancePage() {
                                 Viaje: {trip.time} - {trip.lugar} ({trip.movimiento})
                             </CardTitle>
                             <CardDescription>
-                               Cursos: {(trip.courseName as string[]).join(', ')}
+                               Cursos: {Array.isArray(trip.courseName) ? trip.courseName.join(', ') : trip.courseName}
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             {coursesToShow
-                                .filter(course => (trip.courseName as string[]).includes(course.name))
+                                .filter(course => Array.isArray(trip.courseName) && trip.courseName.includes(course.name))
                                 .map(course => (
                                 <div key={course.id}>
                                     <h3 className="font-bold text-lg mb-2">{course.name}</h3>
