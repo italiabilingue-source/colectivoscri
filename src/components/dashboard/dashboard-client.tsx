@@ -7,9 +7,8 @@ import { db } from '@/lib/firebase';
 import type { Course } from '@/types';
 import { CourseBoard } from './course-board';
 import { DashboardHeader } from './dashboard-header';
-import { BookCopy, School, GraduationCap } from 'lucide-react';
+import { Clock, Loader2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { Loader2 } from 'lucide-react';
 
 export default function DashboardClient({ user }: { user: User | null }) {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -20,6 +19,7 @@ export default function DashboardClient({ user }: { user: User | null }) {
   const [lugarFilter, setLugarFilter] = useState('Todos');
   const [colectivoFilter, setColectivoFilter] = useState('Todos');
   const [movimientoFilter, setMovimientoFilter] = useState('Todos');
+  const [levelFilter, setLevelFilter] = useState('Todos');
 
 
   useEffect(() => {
@@ -46,14 +46,17 @@ export default function DashboardClient({ user }: { user: User | null }) {
   }, []);
 
   const filteredCourses = useMemo(() => {
-    return courses.filter(course => {
+    return courses
+      .filter(course => {
         const dayMatch = dayFilter === 'Todos' || course.day === dayFilter;
+        const levelMatch = levelFilter === 'Todos' || course.level === levelFilter;
         const lugarMatch = lugarFilter === 'Todos' || course.lugar === lugarFilter;
         const colectivoMatch = colectivoFilter === 'Todos' || course.colectivo === colectivoFilter;
         const movimientoMatch = movimientoFilter === 'Todos' || course.movimiento === movimientoFilter;
-        return dayMatch && lugarMatch && colectivoMatch && movimientoMatch;
-    });
-  }, [courses, dayFilter, lugarFilter, colectivoFilter, movimientoFilter]);
+        return dayMatch && levelMatch && lugarMatch && colectivoMatch && movimientoMatch;
+      })
+      .sort((a, b) => a.time.localeCompare(b.time));
+  }, [courses, dayFilter, levelFilter, lugarFilter, colectivoFilter, movimientoFilter]);
 
   const jardinCourses = filteredCourses.filter(it => it.level === 'Jardín');
   const primariaCourses = filteredCourses.filter(it => it.level === 'Primaria');
@@ -64,6 +67,7 @@ export default function DashboardClient({ user }: { user: User | null }) {
     setLugarFilter('Todos');
     setColectivoFilter('Todos');
     setMovimientoFilter('Todos');
+    setLevelFilter('Todos');
   };
 
   return (
@@ -73,10 +77,12 @@ export default function DashboardClient({ user }: { user: User | null }) {
         lugarFilter={lugarFilter}
         colectivoFilter={colectivoFilter}
         movimientoFilter={movimientoFilter}
+        levelFilter={levelFilter}
         onDayChange={setDayFilter}
         onLugarChange={setLugarFilter}
         onColectivoChange={setColectivoFilter}
         onMovimientoChange={setMovimientoFilter}
+        onLevelChange={setLevelFilter}
         onClearFilters={handleClearFilters}
       />
       <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
@@ -85,21 +91,11 @@ export default function DashboardClient({ user }: { user: User | null }) {
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
              </div>
         ) : (
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 h-full">
+            <div className="w-full">
                 <CourseBoard
-                    title="JARDÍN"
-                    icon={<BookCopy className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
-                    courses={jardinCourses}
-                />
-                 <CourseBoard
-                    title="PRIMARIA"
-                    icon={<School className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
-                    courses={primariaCourses}
-                />
-                <CourseBoard
-                    title="SECUNDARIA"
-                    icon={<GraduationCap className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
-                    courses={secundariaCourses}
+                    title="Todos los Niveles"
+                    icon={<Clock className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
+                    courses={filteredCourses}
                 />
             </div>
         )}

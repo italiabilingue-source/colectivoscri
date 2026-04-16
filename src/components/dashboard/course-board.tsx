@@ -21,12 +21,13 @@ export function CourseBoard({ title, icon, courses, isPublicView = false }: Cour
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b-2 border-primary/50 pb-2 px-2 text-sm md:text-base text-muted-foreground font-bold tracking-widest">
-            <span>CURSO/GRADO</span>
-            <span>HORA</span>
-            <span>LUGAR</span>
-            <span>COLECTIVO</span>
-            <span className="text-left">MOVIMIENTO</span>
+        <div className="hidden md:grid grid-cols-[0.8fr_1.5fr_0.8fr_1fr_1fr_1fr] items-center gap-4 xl:gap-6 border-b-2 border-primary/50 pb-2 px-2 text-sm md:text-base text-muted-foreground font-bold tracking-widest uppercase">
+            <span>Nivel</span>
+            <span>Curso/Grado</span>
+            <span>Hora</span>
+            <span>Movimiento</span>
+            <span>Lugar</span>
+            <span>Colectivo</span>
         </div>
         <div className="mt-2 space-y-2">
           {courses.length > 0 ? (

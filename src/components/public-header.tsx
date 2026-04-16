@@ -11,10 +11,12 @@ type PublicHeaderProps = {
   lugarFilter: string;
   colectivoFilter: string;
   movimientoFilter: string;
+  levelFilter: string;
   onDayChange: (value: string) => void;
   onLugarChange: (value: string) => void;
   onColectivoChange: (value: string) => void;
   onMovimientoChange: (value: string) => void;
+  onLevelChange: (value: string) => void;
   onClearFilters: () => void;
   hideLugarMovimiento?: boolean;
 };
@@ -25,10 +27,12 @@ export function PublicHeader({
   lugarFilter,
   colectivoFilter,
   movimientoFilter,
+  levelFilter,
   onDayChange,
   onLugarChange,
   onColectivoChange,
   onMovimientoChange,
+  onLevelChange,
   onClearFilters,
   hideLugarMovimiento = false,
 }: PublicHeaderProps) {
@@ -53,6 +57,18 @@ export function PublicHeader({
                 <SelectItem value="Miércoles">Miércoles</SelectItem>
                 <SelectItem value="Jueves">Jueves</SelectItem>
                 <SelectItem value="Viernes">Viernes</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={levelFilter} onValueChange={onLevelChange}>
+              <SelectTrigger className="w-full sm:w-auto flex-1">
+                <SelectValue placeholder="Nivel" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Todos">Todos Niveles</SelectItem>
+                <SelectItem value="Jardín">Jardín</SelectItem>
+                <SelectItem value="Primaria">Primaria</SelectItem>
+                <SelectItem value="Secundaria">Secundaria</SelectItem>
               </SelectContent>
             </Select>
 

@@ -6,8 +6,7 @@ import { db } from '@/lib/firebase';
 import type { Course } from '@/types';
 import { CourseBoard } from '@/components/dashboard/course-board';
 import { PublicHeader } from '@/components/public-header';
-import { BookCopy, School, GraduationCap } from 'lucide-react';
-import { Loader2 } from 'lucide-react';
+import { Clock, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
@@ -21,6 +20,7 @@ export default function HomePage() {
   const [lugarFilter, setLugarFilter] = useState('Todos');
   const [colectivoFilter, setColectivoFilter] = useState('Todos');
   const [movimientoFilter, setMovimientoFilter] = useState('Todos');
+  const [levelFilter, setLevelFilter] = useState('Todos');
 
   useEffect(() => {
     // Set initial day filter to current day
@@ -58,14 +58,17 @@ export default function HomePage() {
 
   const filteredCourses = useMemo(() => {
     if (!dayFilter) return [];
-    return allCourses.filter(course => {
-      const dayMatch = course.day === dayFilter;
-      const lugarMatch = lugarFilter === 'Todos' || course.lugar === lugarFilter;
-      const colectivoMatch = colectivoFilter === 'Todos' || course.colectivo === colectivoFilter;
-      const movimientoMatch = movimientoFilter === 'Todos' || course.movimiento === movimientoFilter;
-      return dayMatch && lugarMatch && colectivoMatch && movimientoMatch;
-    });
-  }, [allCourses, dayFilter, lugarFilter, colectivoFilter, movimientoFilter]);
+    return allCourses
+      .filter(course => {
+        const dayMatch = course.day === dayFilter;
+        const levelMatch = levelFilter === 'Todos' || course.level === levelFilter;
+        const lugarMatch = lugarFilter === 'Todos' || course.lugar === lugarFilter;
+        const colectivoMatch = colectivoFilter === 'Todos' || course.colectivo === colectivoFilter;
+        const movimientoMatch = movimientoFilter === 'Todos' || course.movimiento === movimientoFilter;
+        return dayMatch && levelMatch && lugarMatch && colectivoMatch && movimientoMatch;
+      })
+      .sort((a, b) => a.time.localeCompare(b.time));
+  }, [allCourses, dayFilter, levelFilter, lugarFilter, colectivoFilter, movimientoFilter]);
 
   const handleClearFilters = () => {
     const today = new Date();
@@ -78,11 +81,9 @@ export default function HomePage() {
     setLugarFilter('Todos');
     setColectivoFilter('Todos');
     setMovimientoFilter('Todos');
+    setLevelFilter('Todos');
   };
 
-  const jardinCourses = filteredCourses.filter(it => it.level === 'Jardín');
-  const primariaCourses = filteredCourses.filter(it => it.level === 'Primaria');
-  const secundariaCourses = filteredCourses.filter(it => it.level === 'Secundaria');
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -91,10 +92,12 @@ export default function HomePage() {
         lugarFilter={lugarFilter}
         colectivoFilter={colectivoFilter}
         movimientoFilter={movimientoFilter}
+        levelFilter={levelFilter}
         onDayChange={setDayFilter}
         onLugarChange={setLugarFilter}
         onColectivoChange={setColectivoFilter}
         onMovimientoChange={setMovimientoFilter}
+        onLevelChange={setLevelFilter}
         onClearFilters={handleClearFilters}
       />
       <main className="flex-1 p-4 md:p-6 lg:p-8">
@@ -103,23 +106,11 @@ export default function HomePage() {
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 w-full">
+          <div className="w-full">
             <CourseBoard
-              title="JARDÍN"
-              icon={<BookCopy className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
-              courses={jardinCourses}
-              isPublicView={true}
-            />
-            <CourseBoard
-              title="PRIMARIA"
-              icon={<School className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
-              courses={primariaCourses}
-              isPublicView={true}
-            />
-            <CourseBoard
-              title="SECUNDARIA"
-              icon={<GraduationCap className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
-              courses={secundariaCourses}
+              title={`Horarios del ${dayFilter}`}
+              icon={<Clock className="w-8 h-8 md:w-10 md:h-10 text-primary" />}
+              courses={filteredCourses}
               isPublicView={true}
             />
           </div>
